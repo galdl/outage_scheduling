@@ -11,4 +11,4 @@ loaded_arguments =load([argeumentFileDir,'/',argeumentFilename]);
 sample_db = build_NN_db(loaded_arguments.params);
 
 %% save output to file
-save([argeumentFileDir ,'/', loaded_arguments.config.JOB_OUTPUT_FILENAME]);
+save([argeumentFileDir , '/build_NN_db_output.mat']);

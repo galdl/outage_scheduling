@@ -27,7 +27,7 @@ pauseDuration=60; %seconds
 timeOutLimit=60*pauseDuration*48;
 %% start by killing all current jobs
 killRemainingJobs(jobArgs);
-pause(3);
+% pause(3);
 for i_job=1:N_jobs
     %% build iteration dir
     relativeIterDir=['/',job_dirname_prefix,num2str(i_job)];
@@ -36,15 +36,15 @@ for i_job=1:N_jobs
     mkdir(localIterDir);
     %% prepere job and send it to cluster
     display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),' - Sending job num ',num2str(i_job), '...']);
-    [argContentFilename] = perpareJobDir(localIterDir,i_job,job_data_filename,params,config);
+    [argContentFilename] = perpareJobDir(localIterDir,i_job,job_data_filename,params);
     [funcArgs,jobArgs]= perpareJobArgs(i_job,localIterDir,argContentFilename,remoteIterDir,jobArgs);
     if(strcmp(config.run_mode,'optimize'))
-        sendJob('build_NN_db_job',funcArgs,jobArgs,config);
+        sendJob('build_NN_db_job',funcArgs,jobArgs);
     else 
          %this is a hack - we refer all jobs to the same file.
          %fullLocalParentDir is loaded from previous run
          funcArgs.argContentFilename = db_file_path; % this will be the 2nd argument to test_UC_NN_error_job
-         sendJob('test_UC_NN_error_job',funcArgs,jobArgs,config);
+         sendJob('test_UC_NN_error_job',funcArgs,jobArgs);
     end
 end
 mostFinished=0;

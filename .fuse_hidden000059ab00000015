@@ -14,7 +14,7 @@ config.SAVE_FILENAME = [config.run_mode,'_saved_data'];
 %% Remote paths - on the server running the jobs 
 % (setting whether such server is used is done with 'remote_cluster' variable)
 config.REMOTE_DIR_ROOT = '/u/gald/PSCC16_continuation/current_version/';
-config.REMOTE_SERVER_MATLAB_WORKPATH = '/u/gald/PSCC16_continuation/current_version/src';
+
 % relative dir is shared among the local and remote dirs. 
 config.RELATIVE_DIR_OPTIMIZE    = 'output/UC_NN/saved_runs/Optimize/';
 config.RELATIVE_DIR_COMPARE = 'output/UC_NN/saved_runs/Compare/';

@@ -1,4 +1,4 @@
-function [tempPythonLocalFilePath,logDir,matlabInnerCode,MATLAB_PATH,tempPyhonRemotePath]=prepareScriptArguments(funcName,funcArgs,jobArgs,config)
+function [tempPythonLocalFilePath,logDir,matlabInnerCode,MATLAB_PATH,tempPyhonRemotePath]=prepareScriptArguments(funcName,funcArgs,jobArgs)
 %% function arguments - struct
 remoteIterDir=funcArgs.remoteIterDir;
 argContentFilename=funcArgs.argContentFilename;
@@ -9,7 +9,7 @@ funcArgsStr=[ '''' , remoteIterDir , '''' , ',' , '''' , argContentFilename , ''
 
 %% matlab call string
 MATLAB_PATH = '/usr/local/bin/matlab';
-WORK_PATH = config.REMOTE_SERVER_MATLAB_WORKPATH;
+WORK_PATH = '/u/gald/PSCC16_continuation/current_version';
 logDir = [remoteIterDir , '/..'];
 tempJobsFileLocalPath= [localIterDir , '/../tempJobFiles/'];
 tempPyhonRemotePath= [remoteIterDir , '/../tempJobFiles/'];

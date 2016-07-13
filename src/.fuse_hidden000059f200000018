@@ -11,7 +11,6 @@ addpath '/u/gald/cplex_installtion/cplex/matlab/x86-64_linux/'
 addpath '/u/gald/PSCC16_continuation/current_version/Original_Code'
 addpath '/u/gald/PSCC16_continuation/current_version/Original_Code/Cases'
 addpath '/u/gald/PSCC16_continuation/current_version/Original_Code/Connectivity'
-addpath(genpath_exclude('/u/gald/PSCC16_continuation/current_version',{'output'}));
 
 
 

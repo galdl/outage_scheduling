@@ -8,7 +8,7 @@
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=3; 
+params.numOfDaysPerMonth=3;
 params.dynamicSamplesPerDay=5;
 % params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=6;
@@ -83,7 +83,7 @@ params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verb
 % ops = sdpsettings('solver','cplex');
 
 %% number of samples for building db in each job
-params.N_samples_bdb = 1; %400
+params.N_samples_bdb = 400; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);
 %% db random NN mode
