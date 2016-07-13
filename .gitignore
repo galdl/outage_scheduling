@@ -1,1 +1,3 @@
 output
+.fuse_*
+clone*
