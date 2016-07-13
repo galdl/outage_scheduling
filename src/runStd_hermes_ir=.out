@@ -1,0 +1,40 @@
+
+%% this part runs independently on each node
+    params.muStdRatio = muStdRatioVec(i_r);
+    display(['Outer wind std ration iteration ',num2str(i_r),' out of ',num2str(length(muStdRatioVec))]);
+Outer wind std ration iteration  out of 10
+    try
+%         [sequenceStats,state] = simulateSequenceOfDays(state,params);
+        sequenceStats=0;
+    catch ME
+        warning(['Problem using simulateSequenceOfDays for i_r = ' num2str(i_r)]);
+        msgString = getReport(ME);
+        display(msgString);
+%         exceptionIndices=[exceptionIndices,i_r];
+    end
+%     statsForDifferentRatios{i_r} = sequenceStats;
+    save(['./saved_runs/Hermes/sequenceStats_ir=',num2str(i_r),timeStr,'.mat'],'sequenceStats')
+% statsForDifferentRatios(exceptionIndices) = []; 
+% muStdRatioVec(exceptionIndices)=[];
+% plotStats(statsForDifferentRatios,muStdRatioVec);
+diary off;
+
+%% this part runs independently on each node
+    params.muStdRatio = muStdRatioVec(i_r);
+    display(['Outer wind std ration iteration ',num2str(i_r),' out of ',num2str(length(muStdRatioVec))]);
+Outer wind std ration iteration  out of 10
+    try
+%         [sequenceStats,state] = simulateSequenceOfDays(state,params);
+        sequenceStats=0;
+    catch ME
+        warning(['Problem using simulateSequenceOfDays for i_r = ' num2str(i_r)]);
+        msgString = getReport(ME);
+        display(msgString);
+%         exceptionIndices=[exceptionIndices,i_r];
+    end
+%     statsForDifferentRatios{i_r} = sequenceStats;
+    save(['./saved_runs/Hermes/sequenceStats_ir=',num2str(i_r),timeStr,'.mat'],'sequenceStats')
+% statsForDifferentRatios(exceptionIndices) = []; 
+% muStdRatioVec(exceptionIndices)=[];
+% plotStats(statsForDifferentRatios,muStdRatioVec);
+diary off;

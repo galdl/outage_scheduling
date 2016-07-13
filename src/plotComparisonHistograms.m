@@ -1,0 +1,89 @@
+%% load data
+bestLastHistVals=cell2mat(bestLast(4,:));
+bestLastAll=cell2mat(bestLast(5,:))
+bestLastAll=bestLastAll(~isnan(bestLastAll));
+
+bestHistVals=cell2mat(best(4,:));
+bestAll=cell2mat(best(5,:))
+bestAll=bestAll(~isnan(bestAll));
+
+oldestHistVals=cell2mat(oldestPlanVec(4,:));
+oldestAll=cell2mat(oldestPlanVec(5,:))
+oldestAll=oldestAll(~isnan(oldestAll));
+
+routHistVals=cell2mat(rout(4,:));
+routAll=cell2mat(rout(5,:))
+routAll=routAll(~isnan(routAll));
+
+rout2HistVals=cell2mat(rout2(4,:));
+rout2All=cell2mat(rout2(5,:))
+rout2All=rout2All(~isnan(rout2All));
+
+meanVals=[mean(bestLastHistVals),mean(oldestHistVals),mean(routHistVals),mean(rout2HistVals)];
+stdVals=[std(bestLastHistVals),std(oldestHistVals),std(routHistVals),std(rout2HistVals)];
+% figure;
+% [n1, xout1] = hist(bestLastHistVals);
+% bar(xout1,n1,'r'); grid; hold
+% [n2, xout2] = hist(bestHistVlas);
+% bar(xout2,n2,'g'); grid; hold
+% [n3, xout3] = hist(oldestHistVals);
+% bar(xout3,n3,'b'); grid; hold
+% % [n2, xout2] = hist(y2);
+% % bar(xout2,n2,'g');
+%% plot histograms
+% figure;
+% hist(bestLastAll);
+% hold on
+% hist(bestAll);
+% hist(oldestAll);
+% 
+% h = findobj(gca,'Type','patch');
+% set(h(1),'Facecolor',[1 0 0],'EdgeColor','k');
+% set(h(2),'Facecolor',[0 0 1],'EdgeColor','k');
+% set(h(2),'Facecolor',[0 1 0],'EdgeColor','k');
+% legend({'bestLast','best','oldest'});
+
+%% plot error-bars
+figure;
+x = 1:4;
+y = meanVals; 
+e = stdVals;
+
+bar(x,y,0.4,'g') 
+hold on 
+errorbar(x,y,e,'rx')
+ylim([5.1e7,5.72e7])
+
+fontSize=21;
+set(gca,'fontsize',23);
+title('Costs of the Optimization Solution and the Three Maintenance Heuristics','FontSize', 23);
+% xlabel('Iteration Count', 'FontSize', fontSize)
+ylabel('Objective Cost[$]', 'FontSize', fontSize)
+ax=gca;
+ax.XTickLabel = {'Optimization Solution','''Oldest-First''','''Age-Threshold''','''Cyclic'''};
+
+%% plot actual plans
+
+numPlans=3;
+plansMat=cell(numPlans,1);
+% plansMat{1}=best;
+plansMat{1}=oldestPlanVec{1,1};
+plansMat{2}=generateThresholdPlan(params);
+plansMat{3}=rout2{1,1};
+figure;
+for i_mat=1:numPlans
+    ax(i_mat)=subplot(1,numPlans,i_mat);
+    imagesc(plansMat{i_mat});
+    colormap('gray')
+    colormap(flipud(colormap)); caxis([0,1]);
+    set(ax(i_mat), 'fontsize', numSize);
+    set(findobj(ax(i_mat),'Type','text'),'FontSize',  numSize);
+    set(gca,'xtick',[])
+    set(gca,'ytick',[])
+    if(i_iter==1)
+        xlabel('Month', 'FontSize', fontSize)
+        ylabel('Asset Index', 'FontSize', fontSize)
+        colorbar;
+    end
+    xlabel('abc');
+end
