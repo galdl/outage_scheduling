@@ -1,16 +1,23 @@
-%% initialize program
-rmpath([relativePath,'/src/outage_scheduling']); %some functions are shared
-%between NN and outageSechduling, so just remove the path of the opposite program
+%% UC_NN progarm
 warning off
+
+%% initialize program
+program_path = strsplit(mfilename('fullpath'),'/');
+program_name = program_path{end};
+addpath([relativePath,'/src/uc_nn']);
+rmpath([relativePath,'/src/outage_scheduling']); %some functions are shared
+%between NN and outageSechduling, so remove the path of the opposite program
 configuration
 set_global_constants()
 run('get_global_constants.m')
 prefix_num = 1;
+db_file_path='';
 if(~strcmp(config.run_mode,'optimize'))
     %% When evaluating - load DB file first!
     % mat_file_path =  '~/mount/PSCC16_continuation/current_version/saved_runs/BDB_build_run_2016-06-02-18-04-49--case24';
     % load([mat_file_path,'/hermes_build_db.mat'],'fullRemoteParentDir');
-    db_file_path = [full_localRun_dir,'/',config.SAVE_FILENAME];
+    %db_file_path = [full_localRun_dir,'/',config.SAVE_FILENAME];
+    db_file_path = [full_remoteRun_dir,'/optimize_saved_run'];
     fractionOfFinishedJobs=0.95;
 end
 %% cluster job configuration
@@ -20,58 +27,55 @@ caseName = 'case5'; %case5,case9,case14,case24,case96
 params=get_testCase_params(caseName,config);
 %% build directory structure
 [job_dirname_prefix,full_localRun_dir,job_data_filename,job_output_filename...
-    ,full_remoteRun_dir,full_tempFiles_dir] = build_dirs(prefix_num,config,caseName);
+    ,full_remoteRun_dir,config] = build_dirs(prefix_num,config,caseName);
+
 %% meta-optimizer iterations
-N_jobs=50; %500
 pauseDuration=60; %seconds
-timeOutLimit=60*pauseDuration*48;
+timeOutLimit=60*60*48;
 %% start by killing all current jobs
 killRemainingJobs(jobArgs);
 pause(3);
-for i_job=1:N_jobs
+for i_job=1:params.N_jobs_NN
     %% build iteration dir
     relativeIterDir=['/',job_dirname_prefix,num2str(i_job)];
     localIterDir=[full_localRun_dir,relativeIterDir];
     remoteIterDir=[full_remoteRun_dir,relativeIterDir];
     mkdir(localIterDir);
     %% prepere job and send it to cluster
-    display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),' - Sending job num ',num2str(i_job), '...']);
-    [argContentFilename] = perpareJobDir(localIterDir,i_job,job_data_filename,params,config);
-    [funcArgs,jobArgs]= perpareJobArgs(i_job,localIterDir,argContentFilename,remoteIterDir,jobArgs);
+    display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),' - ',program_name,' - Sending job num ',num2str(i_job), '...']);
+    [argContentFilename] = write_job_contents(localIterDir,i_job,db_file_path,params,config);
+    [funcArgs,jobArgs]= prepere_for_sendJob(i_job,argContentFilename,remoteIterDir,jobArgs);
     if(strcmp(config.run_mode,'optimize'))
         sendJob('build_NN_db_job',funcArgs,jobArgs,config);
     else 
-         %this is a hack - we refer all jobs to the same file.
-         %fullLocalParentDir is loaded from previous run
-         funcArgs.argContentFilename = db_file_path; % this will be the 2nd argument to test_UC_NN_error_job
-         sendJob('test_UC_NN_error_job',funcArgs,jobArgs,config);
+        sendJob('test_UC_NN_error_job',funcArgs,jobArgs,config);
     end
 end
 mostFinished=0;
-jobsWaitingToFinish=N_jobs;
-display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),' - ','Waiting for at least ', ...
-    num2str(ceil(fractionOfFinishedJobs*jobsWaitingToFinish)),' of ',num2str(jobsWaitingToFinish),' jobs...']);
+jobsWaitingToFinish=params.N_jobs_NN;
+display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),'-',program_name,' - ','Waiting for at least ', ...
+    num2str(ceil(config.fraction_of_finished_jobs*jobsWaitingToFinish)),' of ',num2str(jobsWaitingToFinish),' jobs...']);
 timeOutCounter=0;
 numFinishedFiles=0;
 %% wait for enough jobs to finish
 while((~mostFinished && timeOutCounter<=timeOutLimit))
     pause(pauseDuration);
     [mostFinished,numFinishedFiles]= ...
-        checkIfMostFinished(fractionOfFinishedJobs,jobsWaitingToFinish,fullLocalParentDir,job_output_filename);
+        checkIfMostFinished(config.fraction_of_finished_jobs,jobsWaitingToFinish,full_localRun_dir,job_output_filename);
     timeOutCounter=timeOutCounter+pauseDuration;
 end
 save([full_localRun_dir,'/',config.SAVE_FILENAME]);
 %% after enough jobs finished - destroy remaining
 display([num2str(timeOutCounter),' seconds passed. ','Num of finished files: ',num2str(numFinishedFiles)]);
 killRemainingJobs(jobArgs);
-deleteUnnecessaryTempFiles(tempFilesDir);
+deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
 if(strcmp(config.run_mode,'optimize'))
     %% extract and build database
     tic
-    [final_db,sample_matrix,finished_idx] = extract_data(fullLocalParentDir,N_jobs,job_dirname_prefix,job_output_filename,params);
+    [final_db,sample_matrix,finished_idx] = extract_data(full_localRun_dir,params.N_jobs_NN,job_dirname_prefix,job_output_filename,params);
     toc
-    split_dir = '/split_data';
-    [split_data_loc,num_data_chunks] = splitAndSaveData(final_db,sample_matrix,fullLocalParentDir,split_dir);
+    [split_data_loc,num_data_chunks] = split_and_save_data(final_db,sample_matrix,full_localRun_dir,config.SPLIT_DIR);
+    % saves all but the variables in the regex
     save([full_localRun_dir,'/',config.SAVE_FILENAME],'-regexp','^(?!(final_db|sample_matrix)$).');
 else 
     %% extract and build database
@@ -81,7 +85,7 @@ else
     KNN=params.KNN;
     %%
     tic
-    [final_db_test,finished_idx,uc_samples] = extract_data_test(fullLocalParentDir,N_jobs,JOB_DIRNAME_PREFIX,job_output_filename,params);
+    [final_db_test,finished_idx,uc_samples] = extract_data_test(full_localRun_dir,params.N_jobs_NN,JOB_DIRNAME_PREFIX,job_output_filename,params);
     toc
     save([full_localRun_dir,'/',config.SAVE_FILENAME]);
     %%

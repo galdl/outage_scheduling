@@ -1,10 +1,11 @@
-function [tempPythonLocalFilePath,logDir,matlabInnerCode,MATLAB_PATH,tempPyhonRemotePath]=prepareScriptArguments(funcName,funcArgs,jobArgs)
+function [tempPythonLocalFilePath,logDir,matlabInnerCode,MATLAB_PATH,tempPyhonRemotePath]=prepareScriptArguments_obsolete(funcName,funcArgs,jobArgs,config)
 %% function arguments - struct
 i_monthStr=num2str(funcArgs.i_month);
 remotePlanDir=funcArgs.remotePlanDir;
+localPlanDir=funcArgs.localPlanDir;
+
 mPlanFilename=funcArgs.mPlanFilename;
 caseName=funcArgs.caseName;
-localPlanDir=funcArgs.localPlanDir;
 jobName=jobArgs.jobName;
 
 funcArgsStr=[i_monthStr , ',' , '''' , remotePlanDir , '''' , ',' , '''' , mPlanFilename , '''' , ',' , '''' , caseName, ''''];
@@ -17,7 +18,7 @@ funcArgsStr=[i_monthStr , ',' , '''' , remotePlanDir , '''' , ',' , '''' , mPlan
 % end
 %% matlab call string
 MATLAB_PATH = '/usr/local/bin/matlab';
-WORK_PATH = '/u/gald/Asset_Management/matlab/Matlab/current_workspace';
+WORK_PATH = config.REMOTE_SERVER_MATLAB_WORKPATH;
 logDir = [remotePlanDir , '/../..'];
 tempJobsFileLocalPath= [localPlanDir , '/../../tempJobFiles/'];
 tempPyhonRemotePath= [remotePlanDir , '/../../tempJobFiles/'];

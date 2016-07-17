@@ -1,6 +1,13 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
+%% UC_NN simulation parameters
+params.N_jobs_NN=100; %500
+%% number of samples for building db in each job
+params.N_samples_bdb = 150; %400
+%% num samples for testing in each job
+params.N_samples_test = ceil(params.N_samples_bdb/8);
 
-%% simulation length parameters
+%% Outage_scheduling simulation parameters
+params.N_CE=2;
 %in case5, 4 months, 75 plans , 2x10 - finished in 40 mins
 %in case9, 4 months, 75 plans , 2x25 - finished in 4 hours
 %in case9, 8 months, 75 plans , 3x25 - in 7 hours t.o, 280 out of 600
@@ -81,11 +88,6 @@ params.fixDuration=24;
 params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
 
 % ops = sdpsettings('solver','cplex');
-
-%% number of samples for building db in each job
-params.N_samples_bdb = 1; %400
-%% num samples for testing in each job
-params.N_samples_test = ceil(params.N_samples_bdb/8);
 %% db random NN mode
 params.db_rand_mode = true;
 %% choose whether to run in n-1 mode

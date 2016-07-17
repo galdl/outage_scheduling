@@ -1,25 +1,29 @@
+%% Outage_scheduling progarm
 %% initialize program
+program_path = strsplit(mfilename('fullpath'),'/');
+program_name = program_path(end);
+addpath([relativePath,'/src/outage_scheduling']); %some functions are shared
+%between NN and outageSechduling, so remove the path of the opposite program
+rmpath([relativePath,'/src/uc_nn']); %some functions are shared
+%between NN and outageSechduling, so just remove the path of the opposite program
 warning off
 configuration
 set_global_constants()
 run('get_global_constants.m')
-prefix_num = 1;
-%% build directory structure
-[job_dirname_prefix,full_localRun_dir,job_data_filename,job_output_filename...
-    ,full_remoteRun_dir,full_tempFiles_dir] = build_dirs(prefix_num,config);
+prefix_num = 2;
+%% Load UC_NN database path
+db_file_path = '';
 %% cluster job configuration
 jobArgs = set_job_args(prefix_num,config);
 %% set test case params
-caseName = 'case96'; %case5,case9,case14,case24
+caseName = 'case5'; %case5,case9,case14,case24
 params=get_testCase_params(caseName,config);
+%% build directory structure
+[job_dirname_prefix,full_localRun_dir,job_data_filename,job_output_filename...
+    ,full_remoteRun_dir,config] = build_dirs(prefix_num,config,caseName);
 %% meta-optimizer initialized
-
-jobArgs.ncpus=1;
-jobArgs.memory=2; %in GB
-jobArgs.queue='all_q';
-jobArgs.jobNamePrefix='sim_m';
-jobArgs.userName='gald';
-N_CE=30;
+pauseDuration=60; %seconds
+timeOutLimit=60*pauseDuration*20;
 epsilon=0.005;
 rho = 0.2;
 planSize=[params.nl,params.numOfMonths];
@@ -27,51 +31,42 @@ n = planSize(1)*planSize(2);
 % p = (2/planSize(1))*ones(n,1);
 p = 0.5*ones(n,1);
 N_plans=params.N_plans;
-maxConcurrentJobs=200;
+maxConcurrentJobs=50;
 jobsPerIteration=N_plans*params.numOfMonths;
 maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
 N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
 
-pauseDuration=60; %seconds
-timeOutLimit=60*pauseDuration*20;
-% mPlanBatch=round(rand(planSize(1),planSize(2),N_plans));
-% pertubation=0.95;
-solutionStats=zeros(N_CE,4);
-bestPlanVec = cell(N_CE,1);
-bestPlanVecTemp = cell(6,N_plans,N_CE);
+solutionStats=zeros(params.N_CE,4);
+bestPlanVec = cell(params.N_CE,1);
+bestPlanVecTemp = cell(6,N_plans,params.N_CE);
 i_CE=1;
 
 killRemainingJobs(jobArgs);
-pause(5);
+pause(3);
 %% optimization iterations - each w/ multiple solutions (m.plans)
-while(i_CE<=N_CE && ~convergenceObtained(p,epsilon))
+while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
     try
         %% build iteration dir
         relativeIterDir=['/iteration_',num2str(i_CE)];
-        localIterDir=[fullLocalParentDir,relativeIterDir];
-        remoteIterDir=[fullRemoteParentDir,relativeIterDir];
+        localIterDir=[full_localRun_dir,relativeIterDir];
+        remoteIterDir=[full_remoteRun_dir,relativeIterDir];
         mkdir(localIterDir);
         
         %% build directory structure
-        %                 X = (rand(n,N_plans)<repmat(p,1,N_plans)); %ralizations of bernoulli w.p p
         X = generatePlans(reshape(p,planSize),N_plans,epsilon);
         %% choose current solutions
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
-        %         mPlanBatch = unconstrainedMPlanBatch;
-        %                 mPlanBatch = applyConstraints(unconstrainedMPlanBatch);
-        %         X2=reshape(mPlanBatch,n,N_plans);
         %% prepere jobs and send all of them to cluster
         previousIterationsJobs=0;
         for i_CE_inner=1:N_CE_inner
             innerPlanRange=(i_CE_inner-1)*maxConcurrentPlans+1:min(i_CE_inner*maxConcurrentPlans,N_plans);
             for i_plan=innerPlanRange
-                [localPlanDir,mPlanFilename,remotePlanDir]=...
-                    perparePlanDir(localIterDir,remoteIterDir,i_plan,mPlanBatch,GENERAL_PLAN_FILENAME,PLAN_DIRNAME_PREFIX);
-                
+                [localPlanDir,remotePlanDir]=...
+                    perparePlanDir(localIterDir,remoteIterDir,i_plan,job_data_filename,config.PLAN_DIRNAME_PREFIX);
                 for i_month=1:params.numOfMonths
-                    [funcArgs,jobArgs]=...
-                        perpareJobArgs(i_plan,i_month,i_CE,localPlanDir,mPlanFilename,remotePlanDir,jobArgs,caseName);
-                    sendJob('simulateMonth',funcArgs,jobArgs);
+                    [argContentFilename] = write_job_contents(localPlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params,config);
+                    [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,i_CE,remotePlanDir,jobArgs,argContentFilename);
+                    sendJob('simulateMonth_job',funcArgs,jobArgs,config);
                 end
             end
             mostFinished=0;
@@ -96,7 +91,7 @@ while(i_CE<=N_CE && ~convergenceObtained(p,epsilon))
         end
         deleteUnnecessaryTempFiles(tempFilesDir);
         [planValues,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad] = ...
-            extractObjectiveValue(localIterDir,N_plans,PLAN_DIRNAME_PREFIX,params);
+            extractObjectiveValue(localIterDir,N_plans,config.PLAN_DIRNAME_PREFIX,params);
         %         S=planValues(~isnan(planValues));
         [S_sorted_includingNan,I] = sort(planValues);
         S_sorted=S_sorted_includingNan(~isnan(S_sorted_includingNan));
@@ -129,7 +124,7 @@ while(i_CE<=N_CE && ~convergenceObtained(p,epsilon))
         % save(['./saved_runs/Hermes/yearlyStats_case24_',timeStr,'.mat'],'yearlyStats')
         
     catch ME
-        warning(['Problem using clusteredCrossEntropy for iteration = ' num2str(i_CE)]);
+        warning(['Problem using',program_name,'for iteration = ' num2str(i_CE)]);
         msgString = getReport(ME);
         display(msgString);
         if(isempty(mPlanBatch) | (sum(isnan(mPlanBatch))>0))
@@ -137,7 +132,7 @@ while(i_CE<=N_CE && ~convergenceObtained(p,epsilon))
         end
     end
     i_CE=i_CE+1;
-    save([fullLocalParentDir,'/bestPlanVecFile_partial.mat']);
+    save([full_localRun_dir,'/bestPlanVecFile_partial.mat']);
 end
 bestPlanVec(i_CE:end)=[];
 solutionStats=solutionStats(1:i_CE-1,:);
@@ -148,4 +143,4 @@ for i_plot=1:4
     plot(solutionStats(:,i_plot));
     title(titles{i_plot});
 end
-save([fullLocalParentDir,'/bestPlanVecFile.mat']);
+save([full_localRun_dir,'/bestPlanVecFile.mat']);

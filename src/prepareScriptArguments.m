@@ -1,20 +1,19 @@
 function [tempPythonLocalFilePath,logDir,matlabInnerCode,MATLAB_PATH,tempPyhonRemotePath]=prepareScriptArguments(funcName,funcArgs,jobArgs,config)
 %% function arguments - struct
-remoteIterDir=funcArgs.remoteIterDir;
+remote_job_run_dir=funcArgs.remote_job_run_dir;
+
 argContentFilename=funcArgs.argContentFilename;
-localIterDir=funcArgs.localIterDir;
 jobName=jobArgs.jobName;
 
-funcArgsStr=[ '''' , remoteIterDir , '''' , ',' , '''' , argContentFilename , '''' ];
+funcArgsStr=[ '''' , remote_job_run_dir , '''' , ',' , '''' , argContentFilename , '''' ];
 
 %% matlab call string
 MATLAB_PATH = '/usr/local/bin/matlab';
 WORK_PATH = config.REMOTE_SERVER_MATLAB_WORKPATH;
-logDir = [remoteIterDir , '/..'];
-tempJobsFileLocalPath= [localIterDir , '/../tempJobFiles/'];
-tempPyhonRemotePath= [remoteIterDir , '/../tempJobFiles/'];
+logDir = config.full_remoteRun_dir;
 
 matlabInnerCode=[ ' "cd(''' , WORK_PATH , ''');,warning off,' , funcName , '(' , funcArgsStr , ');"' ];
 tempPythonFilename    = [ jobName , '.py'];
-tempPythonLocalFilePath = [ tempJobsFileLocalPath , tempPythonFilename ];
-tempPyhonRemotePath = [ tempPyhonRemotePath , tempPythonFilename ];
+
+tempPythonLocalFilePath = [ config.local_tempFiles_dir , tempPythonFilename ];
+tempPyhonRemotePath = [ config.remote_tempFiles_dir , tempPythonFilename ];
