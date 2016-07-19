@@ -1,8 +1,8 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=100; %500
+params.N_jobs_NN=20; %500
 %% number of samples for building db in each job
-params.N_samples_bdb = 150; %400
+params.N_samples_bdb = 2; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);
 
@@ -15,11 +15,9 @@ params.N_CE=2;
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=3; 
-params.dynamicSamplesPerDay=5;
-% params.numOfDaysPerMonth=2;
-% params.dynamicSamplesPerDay=6;
-params.N_plans=75;
+params.numOfDaysPerMonth=2; %3
+params.dynamicSamplesPerDay=2; %5
+params.N_plans=10; %75
 params.numOfMonths=8;
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=1;

@@ -12,7 +12,7 @@ loaded_arguments
 display(['loading ',argumentFileDir,'/',argumentFileName]);
 nn_database =load(loaded_arguments.db_file_path); % all information needed is in the DB
 %% restore data
-[final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]...
+[final_db,sample_matrix] = restoreSplitData([nn_database.dirsfull_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]...
     ,nn_database.num_data_chunks);
 %% call the function
 [difference_vector,uc_samples] = test_UC_NN_error( final_db , sample_matrix , nn_database.params)

@@ -55,8 +55,11 @@ end
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
     ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
-%% update contingencies
-mpc.branch(:,BR_STATUS)=params.line_status;
+%% update contingencies - if field exists (currently, only used in the UC_NN program. 
+%% In outage_scheduling program, it is being updated through the state struct
+if(isfield(params,'line_status'))
+    mpc.branch(:,BR_STATUS)=params.line_status;
+end
 %% ignore reactive costs for DC
 mpc.gencost = pqcost(mpc.gencost, ng);
 %% convert single-block piecewise-linear costs into linear polynomial cost
@@ -130,11 +133,14 @@ for k = 1:horizon
     %     w=zeros(nb,1); w((bus(:,PD)>1))=0; w=zeros(nb,1);
     currHour = mod(startTime-1+k-1,24)+1;
     w = params.windScenario(:,currHour);
-    d = params.demandScenario(:,currHour);
-    %     dailyDemandFactor=getDeterministicDemandFactor(currHour);
-    %     monthlyDemandFactor = getMonthlyDemandFactor(state);
-    %     bus=scale_load(dailyDemandFactor*monthlyDemandFactor,mpc.bus); %mpc bus stays fixed
-    bus(:,PD) = d;
+    if(isfield(params,'demandScenario'))
+        d = params.demandScenario(:,currHour);
+        bus(:,PD) = d;
+    else
+        dailyDemandFactor=getDeterministicDemandFactor(currHour);
+        monthlyDemandFactor = getMonthlyDemandFactor(state);
+        bus=scale_load(dailyDemandFactor*monthlyDemandFactor,mpc.bus); %mpc bus stays fixed
+    end
     windAdditionToDemand =  - w + sp(:,k);
     Constraints = [Constraints , 0 <= sp(:,k) <= w];
     demandVector(k)=sum(bus(:,PD));
@@ -215,7 +221,7 @@ end
 
 %% Adding minimum up- and down-time, and calculate start-up times
 %% params.dropUpDownConstraints allows neglecting these constraints for faster run-time
-if(~isfield(params,'dropUpDownConstraints') || ~params.dropUpDownConstraints);
+if(~(isfield(params,'dropUpDownConstraints') && params.dropUpDownConstraints));
     minup   = params.unitsInfo(:,params.MU);
     mindown = params.unitsInfo(:,params.MD);
     initialGeneratorState=state.initialGeneratorState;
