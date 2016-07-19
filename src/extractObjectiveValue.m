@@ -20,6 +20,7 @@ for i_plan=1:N_plans
         monthFileList=monthsFolder.mat(out_idx);
         for i_matFile=1:length(monthFileList)
             dynamicObjective=[];
+            originalObjective = [];
             dynamicLoadLost=[];
             contingenciesHappened=[];
             monthFilename = monthFileList{i_matFile};
@@ -28,7 +29,13 @@ for i_plan=1:N_plans
     
             monthlyStats=monthlyStatsStruct.monthlyStats; %dont ask...
             for day = 1:length(monthlyStats)
+                %each monthlyStats{day}.dynamicObjective is a vector of 24
+                %scalars 'dynamicObjective' values, which are the 
+                %post-realization actual costs of the day
                 dynamicObjective=[dynamicObjective,monthlyStats{day}.dynamicObjective];
+                %each monthlyStats{day}.originalObjective is a scalar, the value of the 
+                %pre-realization estimated cost of the day, based on the UC
+                originalObjective=[originalObjective,monthlyStats{day}.originalObjective];
                 dynamicLoadLost=[dynamicLoadLost,monthlyStats{day}.dynamicLoadLost];
                 contingenciesHappened=[contingenciesHappened,monthlyStats{day}.contingenciesHappened];
                 if(day==1) %save all first day objective values for std analysis
@@ -36,9 +43,13 @@ for i_plan=1:N_plans
                 end
             end
             contingenciesFrequency(:,parsedMonthNum,i_plan) = mean(contingenciesHappened,2);
-            planValues(i_plan) = planValues(i_plan) + mean(dynamicObjective);
+            %at the end, we care about the deviations and extra costs, not
+            %the base costs (which the system operator doesn't pay anyhow).
+            %We expect this number to be positive, obviously (redispatch
+            %always causes more expanses. curtailment can be smaller though, but it small)
+            planValues(i_plan) = planValues(i_plan) + mean(dynamicObjective) - mean(originalObjective);
                         lostLoad(i_plan) = lostLoad(i_plan) + mean(dynamicLoadLost);
-            monthlyCost(i_plan,parsedMonthNum) = mean(dynamicObjective); 
+            monthlyCost(i_plan,parsedMonthNum) = mean(dynamicObjective) - mean(originalObjective); 
         end
         %normalize if partial year (not all month jobs returend)
         planValues(i_plan)=planValues(i_plan)*(params.numOfMonths/length(monthFileList));

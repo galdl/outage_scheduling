@@ -31,6 +31,6 @@ end
 if(~success)
     display('escalated to FINE PAYMENT escalateUC');
 %     objective=1e6;
-    objective = params.finePayment;
+    objective = params.finePayment*params.horizon;
     escalateLevel=3;
 end

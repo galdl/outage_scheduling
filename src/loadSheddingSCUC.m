@@ -22,4 +22,4 @@ while (~success)
     i=i+1;
 end
 loadLost=sum(loadsRemoved);
-objective=objective+sum(loadsRemoved*params.VOLL);
+objective=objective+sum(loadsRemoved*params.VOLL)*params.horizon;

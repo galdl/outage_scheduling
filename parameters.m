@@ -74,7 +74,7 @@ params.muStdRatio = 0.15;
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost
-params.finePayment = 3*sum(mpcase.bus(:,3))*params.VOLL; %multiple of the full LS cost
+params.finePayment = sum(mpcase.bus(:,3))*params.VOLL; %multiple of the full LS cost - this is per hour
 params.fixDuration=24;
 %% optimization settings
 % params.optimizationSettings =  sdpsettings('solver','mosek','mosek.MSK_DPAR_MIO_MAX_TIME',200,'verbose',params.verbose); %gurobi,sdpa,mosek
@@ -84,6 +84,7 @@ params.fixDuration=24;
 % params.optimizationSettings = sdpsettings('solver','cplex','cplex.timelimit',5,'verbose',params.verbose); %gurobi,sdpa,mosek
 
 params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
+% params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); 
 
 % ops = sdpsettings('solver','cplex');
 %% db random NN mode
