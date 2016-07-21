@@ -1,7 +1,6 @@
 function [dailyStats,state] = simulateDay(params,state)
 %% variable initialization
 isStochastic=1;
-stateAlreadyUpdated=1;
 
 dailyStats.dynamicObjective=[];
 dailyStats.deviationCost=[];
@@ -10,27 +9,38 @@ dailyStats.dynamicEscalateLevelVec=[];
 dailyStats.contingenciesHappened=[];
 dailyStats.dynamicWindSpilled=[];
 dailyStats.dynamicLoadLost=[];
+dailyStats.success_rate=[];
 
 %% First part - generate day-ahead UC forecast
-windScenario = generateWind(1:params.horizon,params,state,~isStochastic); %% in the future - change wind profile according to date
-params.windScenario = windScenario;
-dynamicUCParams=[];
-if(~params.myopicUCForecast)
-    [originalPg,originalObjective,originalOnoff,~,~,~,originalEscalateLevel,~,originalWindSpilled,originalLoadLost] = ...
-        escalateUC(params,state,dynamicUCParams,stateAlreadyUpdated);
+% in the future - change wind profile according to date
+[demandScenario,windScenario] = generateDemandWind_with_category(1:params.horizon,params,state,isStochastic);
+
+uc_sample_in.windScenario = windScenario;
+uc_sample_in.demandScenario = demandScenario;
+beginning_of_day_hour=1; dynamicUC=0;
+uc_sample_in.line_status = getFixedLineStatus(beginning_of_day_hour,dynamicUC,params,state); 
+if(params.use_NN_UC)
+    %% find K nearest neighbours
+    [NN_uc_sample_vec,~]= get_uc_NN(params.nn_db.final_db,params.nn_db.sample_matrix,uc_sample_in,params);
+    uc_sample_out = NN_uc_sample_vec{1};
 else
-     [originalPg,originalObjective,originalOnoff,~,~,~,originalEscalateLevel,~,originalWindSpilled,originalLoadLost] = ...
-        myopicEscalateUC(params,state,dynamicUCParams,stateAlreadyUpdated);
+    %% compute optimal UC plan for the drawn case
+    uc_sample_out = run_UC(params.n1_str , state , uc_sample_in.demandScenario , uc_sample_in.windScenario , uc_sample_in.line_status, params);
 end
 
-%% Second part - dynamic myopic UC - take multiple samples
+%% Second part - real-time OPF solutions - take multiple samples
 for i_sample = 1:params.dynamicSamplesPerDay
-     timeStr=datestr(datetime('now'));
+    timeStr=datestr(datetime('now'));
     display([timeStr,': day sample ',num2str(i_sample),' out of ',num2str(params.dynamicSamplesPerDay), ' params.dynamicSamplesPerDay']);
     try
-        [stochasticWindScenario , Pr] = generateWind(1:params.horizon,params,state,isStochastic);
-        params.windScenario = stochasticWindScenario;
-        [objective,~,deviationCost,deviationTime,stateCopy,escalateLevelVec,contingenciesHappened,dynamicWindSpilled,dynamicLoadLost] = ...
+        
+        %% draw RT wind and demand and run step-by-step DCOPFs for costs and reliability assesment
+        [windScenario_RT,demandScenario_RT] = generate_RT_wind_demand(windScenario,demandScenario,params);
+        params.windScenario = windScenario_RT;
+        params.demandScenario = demandScenario_RT;
+        originalPg = uc_sample_out.Pg;
+        originalOnoff = uc_sample_out.onoff;
+        [objective,~,deviationCost,deviationTime,stateCopy,escalateLevelVec,contingenciesHappened,dynamicWindSpilled,dynamicLoadLost,success_rate] = ...
             dynamicMyopicUC(originalPg,originalOnoff,params,state);
         if(i_sample==params.dynamicSamplesPerDay) %store the last sample's state for the next day
             state = stateCopy;
@@ -40,10 +50,14 @@ for i_sample = 1:params.dynamicSamplesPerDay
         dailyStats.dynamicObjective=[dailyStats.dynamicObjective,objective];
         dailyStats.deviationCost=[dailyStats.deviationCost,deviationCost];
         dailyStats.deviationTime=[dailyStats.deviationTime,deviationTime];
-        dailyStats.dynamicEscalateLevelVec=[dailyStats.dynamicEscalateLevelVec,escalateLevelVec];
+%         dailyStats.dynamicEscalateLevelVec=[dailyStats.dynamicEscalateLevelVec,escalateLevelVec];
+%         obsolete
         dailyStats.contingenciesHappened=[dailyStats.contingenciesHappened,contingenciesHappened];
         dailyStats.dynamicWindSpilled=[dailyStats.dynamicWindSpilled,dynamicWindSpilled];
-        dailyStats.dynamicLoadLost=[dailyStats.dynamicLoadLost,dynamicLoadLost];
+%         dailyStats.dynamicLoadLost=[dailyStats.dynamicLoadLost,dynamicLoadLost];
+%         to be used in the future
+        dailyStats.success_rate=[dailyStats.success_rate,success_rate];
+
     catch ME
         warning(['Problem using simulateDay for i_sample = ' num2str(i_sample)]);
         msgString = getReport(ME);
@@ -52,10 +66,12 @@ for i_sample = 1:params.dynamicSamplesPerDay
 end
 
 %% save all statistics - original UC plan
-dailyStats.originalObjective=originalObjective;
-dailyStats.originalEscalateLevel=originalEscalateLevel;
-dailyStats.originalWindSpilled=originalWindSpilled;
-dailyStats.originalLoadLost=originalLoadLost*params.horizon; %in the original plan - load shedding is done for the whole day
+dailyStats.originalObjective=uc_sample_out.objective;
+% dailyStats.originalEscalateLevel=originalEscalateLevel; obsolete
+dailyStats.originalWindSpilled=uc_sample_out.windSpilled;
+% dailyStats.originalLoadLost=originalLoadLost*params.horizon; %in the original plan - load shedding is done for the whole day
+%         to be used in the future
+
 
 
 

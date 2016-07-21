@@ -33,7 +33,7 @@ config.CLUSTER_ERROR_DIRNAME = 'error';
 config.TEMPFILES_DIR = '/tempJobFiles/';
 config.JOB_NAME_PREFIX = [config.program_name(1:2),'_',config.run_mode(1:3)];
 % the portions of the jobs that returned from the server, to 
-config.fraction_of_finished_jobs=0.95;
+config.fraction_of_finished_jobs=0.7;
 
 config.PLAN_DIRNAME_PREFIX = 'plan_';
 config.SPLIT_DIR = '/split_data';

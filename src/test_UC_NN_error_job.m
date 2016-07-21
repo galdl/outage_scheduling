@@ -6,10 +6,7 @@ end
 sets_global_constants;
 rng('shuffle');
 %% load arguments
-display(['loading ',argumentFileDir,'/',argumentFileName]);
 loaded_arguments =load([argumentFileDir,'/',argumentFileName]);
-loaded_arguments
-display(['loading ',argumentFileDir,'/',argumentFileName]);
 nn_database =load(loaded_arguments.db_file_path); % all information needed is in the DB
 %% restore data
 [final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]...
@@ -18,4 +15,4 @@ nn_database =load(loaded_arguments.db_file_path); % all information needed is in
 [difference_vector,uc_samples] = test_UC_NN_error( final_db , sample_matrix , nn_database.params)
 %% save output to file
 clear final_db sample_matrix
-save([argumentFileDir ,'/', nn_database.config.JOB_OUTPUT_FILENAME],'difference_vector','uc_samples');
+save([argumentFileDir ,'/', loaded_arguments.config.JOB_OUTPUT_FILENAME],'difference_vector','uc_samples');

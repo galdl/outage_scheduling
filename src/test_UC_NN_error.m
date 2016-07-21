@@ -22,15 +22,10 @@ for j=1:N_test
         tic
     end
     %% draw stochastic variables of the new sample
-    %     uc_sample_orig.windScenario = generateWind(1:params.horizon,params,state,isStochastic);
-    %     uc_sample_orig.demandScenario = generateDemand(1:params.horizon,params,state,isStochastic);
     [demandScenario,windScenario] = generateDemandWind_with_category(1:params.horizon,params,state,isStochastic);
     uc_sample_orig.windScenario = windScenario;
     uc_sample_orig.demandScenario = demandScenario;
     uc_sample_orig.line_status = draw_contingencies(params);
-    params.windScenario = uc_sample_orig.windScenario;
-    params.demandScenario = uc_sample_orig.demandScenario;
-    params.line_status = uc_sample_orig.line_status;
     
     %% find K nearest neighbours
     [NN_uc_sample_vec,NN_uc_sample_rand]= get_uc_NN(final_db,sample_matrix,uc_sample_orig,params);

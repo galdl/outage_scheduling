@@ -59,7 +59,7 @@ linkaxes(xHandles2,'xy');
 % boxplot(final_db_test(idx_low_std,[1,5]));
 % title('Reliability: NN vs random');
 
-%%
+%% plot reliability scatter of exact vs. NN
 Z=0.000;
 S=3;
 
@@ -89,7 +89,7 @@ reliability_NN_rand = KNN_samples_full(:,7+params.KNN);
 [r,p]=corr(reliability_orig_rand,reliability_NN_rand)
 
 %% identify bad samples
-figure(9);
+figure(5);
 reli_dist = sqrt((reliability_orig-reliability_NN).^2);
         hist(reli_dist,50);
 bad_idx = (reli_dist>0.2);
@@ -117,7 +117,7 @@ for j=1:N_std
     [r,p]=corr(reliability_orig,reliability_NN);
     corr_vec(j)=r;
 end
-figure(8);
+figure(7);
 subplot(211);
 plot(corr_vec);
 title('correlation as a function of max NN std filter');
@@ -131,8 +131,47 @@ title('remaining samples as a function of max NN std filter');
 
 
 %%
-figure(5);
+figure(8);
 scatter(reliability_orig_rand+Z*randn(size(reliability_orig_rand)),reliability_NN_rand+Z*randn(size(reliability_NN_rand)),S);
+%% plot cost scatter of exact vs. NN
+Z=0.000;
+S=3;
+
+max_std_thresh = 1;
+KNN_samples = final_db_test(:,4:4+KNN-1);
+NN_std_full = std(KNN_samples,0,2);
+%retain only samples with std below max_std_thresh. Used both for removing nans, and better understaing the plot
+retain_idx = (NN_std_full<max_std_thresh);
+
+KNN_samples_full = final_db_test(retain_idx,:);
+retain_idx_loc = find(retain_idx);
+
+cost_orig = zeros(length(retain_idx_loc),1);
+cost_nn = zeros(length(retain_idx_loc),1);
+cost_nn_rand = zeros(length(retain_idx_loc),1);
+for i_sample = 1:length(retain_idx_loc)
+    uc_sample_orig = uc_samples{retain_idx_loc(i_sample),1};
+    uc_sample_nn = uc_samples{retain_idx_loc(i_sample),2}{1};
+    uc_sample_nn_rand = uc_samples{retain_idx_loc(i_sample),3};
+    cost_orig(i_sample) = uc_sample_orig.objective;
+    cost_nn(i_sample) = uc_sample_nn.objective;
+    cost_nn_rand(i_sample) = uc_sample_nn_rand.objective;
+end
+
+
+figure(9);
+scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn+Z*randn(size(cost_nn)),S);
+[r,p]=corr(cost_orig,cost_nn)
+
+title('cost scatter of exact vs. NN');
+
+
+figure(10);
+scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn_rand+Z*randn(size(cost_nn_rand)),S);
+[r,p]=corr(cost_orig,cost_nn_rand)
+
+title('cost scatter of exact vs. rand NN');
+
 %% draw dependence in reliability
 % reliability_orig = final_db_test(idx_low_std,4);
 % [reliability_orig_sorted,idx] = sort(reliability_orig);

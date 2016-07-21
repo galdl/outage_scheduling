@@ -1,8 +1,8 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=20; %500
+params.N_jobs_NN=200; %500
 %% number of samples for building db in each job
-params.N_samples_bdb = 2; %400
+params.N_samples_bdb = 300; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);
 
@@ -21,7 +21,7 @@ params.N_plans=10; %75
 params.numOfMonths=8;
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=1;
-
+params.use_NN_UC = true;
 %% seperate the edited cases (which include dynamic parameters for UC,
 %% s.a min up/down times, initial state, etc.) and the non-edited, classic matpower cases
 if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','case96'}))>0)
@@ -68,9 +68,13 @@ params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
 params.windBuses = caseParams.windBuses;
 params.windHourlyForcast = caseParams.windHourlyForcast;
 params.windCurtailmentPrice=100; %[$/MW]
+%% optimization parameters
+params.alpha = 0.05; % success_rate chance-constraint parameter : P['bad event']<alpha
 %% demand and wind STDs
 params.demandStd = 0.05; %0.05
 params.muStdRatio = 0.15;
+params.rand_walk_w_std = 0.03;
+params.rand_walk_d_std = 0.01;
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost
@@ -83,7 +87,7 @@ params.fixDuration=24;
 
 % params.optimizationSettings = sdpsettings('solver','cplex','cplex.timelimit',5,'verbose',params.verbose); %gurobi,sdpa,mosek
 
-params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
+params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); %good for hermes
 % params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); 
 
 % ops = sdpsettings('solver','cplex');

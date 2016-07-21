@@ -7,8 +7,14 @@ sets_global_constants;
 rng('shuffle');
 %% load arguments
 loaded_arguments =load([argumentFileDir,'/',argumentFilename]);
+nn_database =load(loaded_arguments.db_file_path); % all information needed is in the DB
+%% restore data
+[final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]...
+    ,nn_database.num_data_chunks);
+nn_db.final_db = final_db; nn_db.sample_matrix = sample_matrix;
 %% call the function
-[monthlyStats]=simulateMonth(loaded_arguments.i_month,loaded_arguments.maintenancePlan,loaded_arguments.db_file_path,loaded_arguments.params)
+[monthlyStats]=simulateMonth(loaded_arguments.i_month,loaded_arguments.maintenancePlan,nn_db,loaded_arguments.params)
 
 %% save output to file
+clear nn_db
 save([loaded_arguments.remotePlanDir,'/',loaded_arguments.config.JOB_OUTPUT_FILENAME,'_m_',num2str(loaded_arguments.i_month)],'monthlyStats');

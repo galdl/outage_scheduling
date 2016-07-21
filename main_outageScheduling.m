@@ -12,7 +12,8 @@ program_matlab_name = program_path{end};
 [jobArgs,params,dirs,config] = ...
 initialize_program(relativePath,prefix_num,caseName,program_name,run_mode);
 %% Load UC_NN database path
-db_file_path = '';
+db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-19-19-00-27--1--case5',...
+    '/optimize_saved_run'];
 %% meta-optimizer initialized
 pauseDuration=60; %seconds
 timeOutLimit=60*pauseDuration*20;
@@ -30,7 +31,7 @@ N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
 
 solutionStats=zeros(params.N_CE,4);
 bestPlanVec = cell(params.N_CE,1);
-bestPlanVecTemp = cell(6,N_plans,params.N_CE);
+bestPlanVecTemp = cell(7,N_plans,params.N_CE);
 i_CE=1;
 
 killRemainingJobs(jobArgs);
@@ -83,10 +84,17 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             killRemainingJobs(jobArgs);
         end
         deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
-        [planValues,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad] = ...
+        [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad] = ...
             extractObjectiveValue(localIterDir,N_plans,params,config);
         %         S=planValues(~isnan(planValues));
-        [S_sorted_includingNan,I] = sort(planValues);
+        %% calibrate the barrier function according to planValues
+        if(i_CE==1)
+            barrier_struct = calibrate_barrier(planValues);
+        end
+        %% calculate objective values
+        success_rate_barrier_values = succes_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
+        objective_values = planValues + success_rate_barrier_values;
+        [S_sorted_includingNan,I] = sort(objective_values);
         S_sorted=S_sorted_includingNan(~isnan(S_sorted_includingNan));
         %% save min,mean,median,max, and best plans along iterations
         solutionStats(i_CE,1) = S_sorted(1);
@@ -105,7 +113,7 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             bestPlanVecTemp{4,j_plan,i_CE}  = planValues(I(j_plan));
             bestPlanVecTemp{5,j_plan,i_CE}  = planValuesVec(I(j_plan),:,:);
             bestPlanVecTemp{6,j_plan,i_CE}  = lostLoad(I(j_plan));
-            
+            bestPlanVecTemp{7,j_plan,i_CE}  = success_rate_barrier_values(I(j_plan));           
         end
         bestPlanVec{i_CE}=bestPlanVecTemp(:,1:length(S_sorted),i_CE);
         p'

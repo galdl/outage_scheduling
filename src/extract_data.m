@@ -17,6 +17,10 @@ for i_job=1:N_jobs
                 outputFileList=fileList.mat;
                 for i_matFile=1:length(outputFileList)
                     outputFileName = outputFileList{i_matFile};
+                    if(strcmp(outputFileName(end-3:end),'.mat'))
+                        outputFileName = outputFileName(1:end-4);
+                    end
+                    %
                     if(strcmp(outputFileName,job_output_filename))
                         loaded_file = load([fileList.path,'/',outputFileName]);
                         sdb=loaded_file.sample_db;

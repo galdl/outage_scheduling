@@ -144,9 +144,11 @@ for k = 1:horizon
     windAdditionToDemand =  - w + sp(:,k);
     Constraints = [Constraints , 0 <= sp(:,k) <= w];
     demandVector(k)=sum(bus(:,PD));
-    %% update current topology if lines were fixed
-    [lineStatus] = getFixedLineStatus(currHour,dynamicUC,params,state);
-    currBranch(:,BR_STATUS)=lineStatus;
+    %% update current topology and update if lines were fixed - changes both 
+    %% in day-ahead and in real-time (RT), used for outage_scheduling program
+    %% as oppose to params.line_status, which is used for the uc_nn program
+    [lineStatus_OS] = getFixedLineStatus(currHour,dynamicUC,params,state);
+    currBranch(:,BR_STATUS)=lineStatus_OS;
     %% N-1 criterion - N(=nl) possible single line outage
     for i_branch = 1:N_contingencies+1
         newMpcase=mpc;

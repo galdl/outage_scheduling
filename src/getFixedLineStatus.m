@@ -1,6 +1,9 @@
 %only return line status - the actual state update will be done in the
 %dynamic mode
 function [lineStatus,fixed] = getFixedLineStatus(currHour,dynamicUC,params,state)
+% update current topology and update if lines were fixed - changes both 
+% in day-ahead and in real-time (RT), used for outage_scheduling program
+% as oppose to params.line_status, which is used for the uc_nn program
 currTimeStamp=state.currTime;
 if(~dynamicUC)  %state.currTime is not updated in each iteration of staticUC so it we need to add currHour here. -1 since first hour is currTime
     currTimeStamp=currTimeStamp+currHour-1;

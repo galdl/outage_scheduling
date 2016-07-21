@@ -3,7 +3,7 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'uc_nn'; %'outage_scheduling','uc_nn' 
-run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+% run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
 caseName = 'case5'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
@@ -48,6 +48,7 @@ display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),'-',program_matlab_name,' - ','Wai
     num2str(ceil(config.fraction_of_finished_jobs*jobsWaitingToFinish)),' of ',num2str(jobsWaitingToFinish),' jobs...']);
 timeOutCounter=0;
 numFinishedFiles=0;
+save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 %% wait for enough jobs to finish
 while((~mostFinished && timeOutCounter<=timeOutLimit))
     pause(pauseDuration);
