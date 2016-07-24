@@ -27,7 +27,7 @@ switch caseName
         windScaleRatio=3;
         windHourlyForcast = getWindHourlyForcast(windBuses);
     case {'case24_ieee_rts','case24'}
-        load 'Cases/ieee_RTS96_UW';
+        load(RTS96_filePath);
         IEEE_24_gen_range=1:32;
         generatorTypeVector=generatorTypes(IEEE_24_gen_range)';
         generatorBusVector=generatorBuses(IEEE_24_gen_range);

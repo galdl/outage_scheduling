@@ -1,13 +1,14 @@
 function [ params ] = get_testCase_params( caseName , config )
 run('get_global_constants.m')
 %need matpower for that
-funcHandle=str2func(caseName);
+if(strcmp(caseName,'case24'))
+    internal_caseName = 'case24_ieee_rts';
+else 
+    internal_caseName = caseName;
+end
+funcHandle=str2func(internal_caseName);
 mpcase=funcHandle();
 params.caseName=caseName;
-%% data dimensions
-params.nb   = size(mpcase.bus, 1);    %% number of buses
-params.nl   = size(mpcase.branch, 1); %% number of branches
-params.ng   = size(mpcase.gen, 1);
 parameters
 end
 %% paratmeres that worked:

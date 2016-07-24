@@ -6,4 +6,5 @@ H =  @(t, sigmat,eta,alpha,gamma, s) (1-exp(-eta*(alpha*exp(gamma*sigmat)*t).^s)
 % bundles of parallel fibers.pdf"
 pH =  H(dt, age ,eta,alpha,gamma, s);
 r = rand(size(pH));
+% r = ones(size(pH)); no contingencies
 branchFailure = r<pH;

@@ -1,13 +1,13 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=200; %500
+params.N_jobs_NN=150; %500
 %% number of samples for building db in each job
 params.N_samples_bdb = 300; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);
 
 %% Outage_scheduling simulation parameters
-params.N_CE=2;
+params.N_CE=15;
 %in case5, 4 months, 75 plans , 2x10 - finished in 40 mins
 %in case9, 4 months, 75 plans , 2x25 - finished in 4 hours
 %in case9, 8 months, 75 plans , 3x25 - in 7 hours t.o, 280 out of 600
@@ -15,9 +15,9 @@ params.N_CE=2;
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=2; %3
-params.dynamicSamplesPerDay=2; %5
-params.N_plans=10; %75
+params.numOfDaysPerMonth=3; %3
+params.dynamicSamplesPerDay=5; %5
+params.N_plans=75; %75
 params.numOfMonths=8;
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=1;
@@ -26,7 +26,7 @@ params.use_NN_UC = true;
 %% s.a min up/down times, initial state, etc.) and the non-edited, classic matpower cases
 if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','case96'}))>0)
     params.caseName=caseName;
-    caseParams=getSpecificCaseParams(caseName);
+    caseParams=getSpecificCaseParams(caseName,'matpower_cases/ieee_RTS96_UW');
     generatorTypeVector=caseParams.generatorTypeVector;
     generatorBusVector=caseParams.generatorBusVector;
     params.initialGeneratorState=caseParams.initialGeneratorState;
@@ -81,13 +81,14 @@ params.VOLL = 1000;
 params.finePayment = sum(mpcase.bus(:,3))*params.VOLL; %multiple of the full LS cost - this is per hour
 params.fixDuration=24;
 %% optimization settings
+params.verbose = 0;
 % params.optimizationSettings =  sdpsettings('solver','mosek','mosek.MSK_DPAR_MIO_MAX_TIME',200,'verbose',params.verbose); %gurobi,sdpa,mosek
 % params.optimizationSettings =  sdpsettings('solver','mosek','verbose',params.verbose);
 % params.optimizationSettings = sdpsettings('solver','gurobi','gurobi.MIPGap','1e-2','verbose',params.verbose); %gurobi,sdpa,mosek
 
 % params.optimizationSettings = sdpsettings('solver','cplex','cplex.timelimit',5,'verbose',params.verbose); %gurobi,sdpa,mosek
 
-params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); %good for hermes
+params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
 % params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); 
 
 % ops = sdpsettings('solver','cplex');

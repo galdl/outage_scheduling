@@ -11,7 +11,7 @@ function barrier_struct = calibrate_barrier(planValues)
 %some of the planValues may be negative. That's ok though.
 M = mean(abs(planValues(~isnan(planValues)))); %consider taking max or high percentile
 
-%function can be found in is phi
+%function can be found in phi.m
 syms t
 eqn = 0.5*t.^2+t == M;
 res = solve(eqn,t);

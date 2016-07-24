@@ -2,7 +2,7 @@
 warning off
 set_global_constants()
 run('get_global_constants.m')
-program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn' 
+program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
 run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 2;
 caseName = 'case5'; %case5,case9,case14,case24
@@ -10,7 +10,7 @@ program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program
 [jobArgs,params,dirs,config] = ...
-initialize_program(relativePath,prefix_num,caseName,program_name,run_mode);
+    initialize_program(relativePath,prefix_num,caseName,program_name,run_mode);
 %% Load UC_NN database path
 db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-19-19-00-27--1--case5',...
     '/optimize_saved_run'];
@@ -24,14 +24,14 @@ n = planSize(1)*planSize(2);
 % p = (2/planSize(1))*ones(n,1);
 p = 0.5*ones(n,1);
 N_plans=params.N_plans;
-maxConcurrentJobs=50;
+maxConcurrentJobs=200;
 jobsPerIteration=N_plans*params.numOfMonths;
 maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
 N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
 
 solutionStats=zeros(params.N_CE,4);
 bestPlanVec = cell(params.N_CE,1);
-bestPlanVecTemp = cell(7,N_plans,params.N_CE);
+bestPlanVecTemp = cell(8,N_plans,params.N_CE);
 i_CE=1;
 
 killRemainingJobs(jobArgs);
@@ -92,7 +92,7 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             barrier_struct = calibrate_barrier(planValues);
         end
         %% calculate objective values
-        success_rate_barrier_values = succes_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
+        success_rate_barrier_values = 5*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
         objective_values = planValues + success_rate_barrier_values;
         [S_sorted_includingNan,I] = sort(objective_values);
         S_sorted=S_sorted_includingNan(~isnan(S_sorted_includingNan));
@@ -113,7 +113,8 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             bestPlanVecTemp{4,j_plan,i_CE}  = planValues(I(j_plan));
             bestPlanVecTemp{5,j_plan,i_CE}  = planValuesVec(I(j_plan),:,:);
             bestPlanVecTemp{6,j_plan,i_CE}  = lostLoad(I(j_plan));
-            bestPlanVecTemp{7,j_plan,i_CE}  = success_rate_barrier_values(I(j_plan));           
+            bestPlanVecTemp{7,j_plan,i_CE}  = success_rate_barrier_values(I(j_plan));
+            bestPlanVecTemp{8,j_plan,i_CE}  = success_rate_values(I(j_plan));
         end
         bestPlanVec{i_CE}=bestPlanVecTemp(:,1:length(S_sorted),i_CE);
         p'
@@ -135,6 +136,9 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
     i_CE=i_CE+1;
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_partial']);
 end
+%% plot barrier values
+plot_barrier_values
+%% plot objective statistics
 bestPlanVec(i_CE:end)=[];
 solutionStats=solutionStats(1:i_CE-1,:);
 titles={'min','mean','median','mean of percentile'};
@@ -144,4 +148,4 @@ for i_plot=1:4
     plot(solutionStats(:,i_plot));
     title(titles{i_plot});
 end
-    save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
+save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
