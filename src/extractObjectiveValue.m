@@ -50,9 +50,9 @@ for i_plan=1:N_plans
             %the base costs (which the system operator doesn't pay anyhow).
             %We expect this number to be positive, obviously (redispatch
             %always causes more expanses. curtailment can be smaller though, but it small)
-            planValues(i_plan) = planValues(i_plan) + mean(dynamicObjective) - mean(originalObjective); %each summation is a mean daily cost 
+            planValues(i_plan) = planValues(i_plan) + mean(dynamicObjective); %each summation is a mean daily cost 
                         lostLoad(i_plan) = lostLoad(i_plan) + mean(dynamicLoadLost);
-            monthlyCost(i_plan,parsedMonthNum) = mean(dynamicObjective) - mean(originalObjective); 
+            monthlyCost(i_plan,parsedMonthNum) = mean(dynamicObjective); 
             success_rate_values(i_plan) = success_rate_values(i_plan) + mean(success_rate);
         end
         %normalize if partial year (not all month jobs returend)

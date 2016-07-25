@@ -1,6 +1,6 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=150; %500
+params.N_jobs_NN=240; %500
 %% number of samples for building db in each job
 params.N_samples_bdb = 300; %400
 %% num samples for testing in each job

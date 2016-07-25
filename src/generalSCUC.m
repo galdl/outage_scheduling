@@ -215,9 +215,13 @@ end
 %% Objective
 pwlCost=sum(sum(y));
 windCurtailmentCost=sum(sum(params.windCurtailmentPrice*sp));
-Objective = pwlCost+windCurtailmentCost;
-if(deviationPenalty && exist('originalOnoff','var'))
-    Objective=Objective+pgDeviationCost(normalizedOriginalPg*baseMVA,originalOnoff,y,gencost);
+Objective = windCurtailmentCost;
+if(~deviationPenalty)
+    Objective = Objective + pwlCost;
+else
+    if(exist('originalOnoff','var'))
+        Objective=Objective+pgDeviationCost(normalizedOriginalPg*baseMVA,originalOnoff,y,gencost);
+    end
 end
 
 
