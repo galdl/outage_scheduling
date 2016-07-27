@@ -10,6 +10,7 @@ dailyStats.contingenciesHappened=[];
 dailyStats.dynamicWindSpilled=[];
 dailyStats.dynamicLoadLost=[];
 dailyStats.success_rate=[];
+dailyStats.relative_nn_std=[];
 
 %% First part - generate day-ahead UC forecast
 % in the future - change wind profile according to date
@@ -22,6 +23,7 @@ uc_sample_in.line_status = getFixedLineStatus(beginning_of_day_hour,dynamicUC,pa
 if(params.use_NN_UC)
     %% find K nearest neighbours
     [NN_uc_sample_vec,~]= get_uc_NN(params.nn_db.final_db,params.nn_db.sample_matrix,uc_sample_in,params);
+    relative_nn_std = calc_relative_std(NN_uc_sample_vec);
     uc_sample_out = NN_uc_sample_vec{1};
 else
     %% compute optimal UC plan for the drawn case
@@ -50,13 +52,12 @@ for i_sample = 1:params.dynamicSamplesPerDay
         dailyStats.dynamicObjective=[dailyStats.dynamicObjective,objective];
         dailyStats.deviationCost=[dailyStats.deviationCost,deviationCost];
         dailyStats.deviationTime=[dailyStats.deviationTime,deviationTime];
-%         dailyStats.dynamicEscalateLevelVec=[dailyStats.dynamicEscalateLevelVec,escalateLevelVec];
-%         obsolete
+%         dailyStats.dynamicEscalateLevelVec=[dailyStats.dynamicEscalateLevelVec,escalateLevelVec];         obsolete
         dailyStats.contingenciesHappened=[dailyStats.contingenciesHappened,contingenciesHappened];
         dailyStats.dynamicWindSpilled=[dailyStats.dynamicWindSpilled,dynamicWindSpilled];
-%         dailyStats.dynamicLoadLost=[dailyStats.dynamicLoadLost,dynamicLoadLost];
-%         to be used in the future
+        dailyStats.dynamicLoadLost=[dailyStats.dynamicLoadLost,dynamicLoadLost];
         dailyStats.success_rate=[dailyStats.success_rate,success_rate];
+        dailyStats.relative_nn_std=[dailyStats.relative_nn_std,relative_nn_std];
 
     catch ME
         warning(['Problem using simulateDay for i_sample = ' num2str(i_sample)]);

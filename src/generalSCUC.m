@@ -2,7 +2,7 @@
 %When nargin>2 , this function is used for the dynamic myopic UC (horizon=1),
 %where we try to not deviate from the original onoff plan, and to have the
 %least deviation from the original Pg due to redispatch costs
-function [Pg,objective,onoff,y,demandVector,success,windSpilled]=generalSCUC(str,params,state,dynamicUCParams)
+function [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost]=generalSCUC(str,params,state,dynamicUCParams)
 %% Data - horizon is 1 for dynamic mode
 % params=getProblemParams_yalmip(mpcase);
 horizon=params.horizon;
@@ -27,6 +27,8 @@ z = binvar(ng,horizon,J);
 Va     = sdpvar(nb,horizon,N_contingencies+1,'full');
 Pg     = sdpvar(ng,horizon,'full');
 sp      = sdpvar(nb,horizon,'full'); %wind spillage variable
+ls      = sdpvar(nb,horizon,'full'); %load shedding variable
+
 % Constraints = onoff==params.oo;
 Constraints=[];
 startTime=1;
@@ -142,6 +144,9 @@ for k = 1:horizon
         bus=scale_load(dailyDemandFactor*monthlyDemandFactor,mpc.bus); %mpc bus stays fixed
     end
     windAdditionToDemand =  - w + sp(:,k);
+    loadhShedding_reductionFromDemand =  ls(:,k);
+
+    Constraints = [Constraints , 0 <= ls(:,k) <= d];
     Constraints = [Constraints , 0 <= sp(:,k) <= w];
     demandVector(k)=sum(bus(:,PD));
     %% update current topology and update if lines were fixed - changes both 
@@ -165,6 +170,7 @@ for k = 1:horizon
             onoff=zeros(size(onoff));
             success=0;
             windSpilled=0;
+            loadLost = 0;
             return
         end
 %         if(strcmp('case96',params.caseName))
@@ -177,7 +183,7 @@ for k = 1:horizon
             N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(newMpcaseInternal);
         
         %% power mismatch constraints - updated as load changes - equation 6.16 in manual
-        [Amis,bmis,Bf,Pfinj] = mismatchConstraints(baseMVA,bus,branch,gen,ng,nb,windAdditionToDemand);
+        [Amis,bmis,Bf,Pfinj] = mismatchConstraints(baseMVA,bus,branch,gen,ng,nb,windAdditionToDemand,loadhShedding_reductionFromDemand);
         %% branch flow constraints - equation 6.17,6.18 in manual
         [upf,upt,il] = powerFlowConstraints(baseMVA,branch,Pfinj);
         %% branch voltage angle difference limits - updated as load changes
@@ -196,6 +202,7 @@ for k = 1:horizon
             onoff=zeros(size(onoff));
             success=0;
             windSpilled=0;
+            loadLost = 0;
             return
         else
             Constraints = [Constraints,Amis*[Va(:,k,i_branch);Pg(:,k)] == bmis]; %overall power equality
@@ -215,7 +222,9 @@ end
 %% Objective
 pwlCost=sum(sum(y));
 windCurtailmentCost=sum(sum(params.windCurtailmentPrice*sp));
-Objective = windCurtailmentCost;
+loadShedding_cost=sum(sum(params.VOLL*ls));
+
+Objective = windCurtailmentCost + loadShedding_cost;
 if(~deviationPenalty)
     Objective = Objective + pwlCost;
 else
@@ -309,5 +318,6 @@ objective=value(Objective);
 onoff=value(onoff);
 success = (~isempty(strfind(result.info,'Successfully solved')));
 windSpilled=value(sp);
+loadLost = sum(sum(value(ls)));
 
 

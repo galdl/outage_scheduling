@@ -7,6 +7,7 @@ function [difference_vector,uc_samples] = test_UC_NN_error( final_db , sample_ma
 % random mode
 %% test how feasible NN solutions are
 N_test = params.N_samples_test;
+N_test = 22;
 if(params.db_rand_mode)
     vec_size = 7+params.KNN;
 else vec_size = 3+params.KNN; 
@@ -17,6 +18,7 @@ state = getInitialState(params);
 isStochastic=1;
 uc_samples = cell(N_test,3);
 for j=1:N_test
+    try
     if(mod(j,mod_interval)==1)
         display(['Test iteration ',num2str(j),' out of ',num2str(N_test)]);
         tic
@@ -53,6 +55,14 @@ for j=1:N_test
             
         end
     end
+     catch ME
+         program_path = strsplit(mfilename('fullpath'),'/');
+        program_matlab_name = program_path{end};
+        warning(['Problem using ',program_matlab_name,' for iteration = ' num2str(j)]);
+        msgString = getReport(ME);
+        display(msgString);
+    end
+     display('here1');
     if(mod(j,mod_interval)==0)
         toc
     end

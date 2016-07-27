@@ -24,14 +24,14 @@ n = planSize(1)*planSize(2);
 % p = (2/planSize(1))*ones(n,1);
 p = 0.5*ones(n,1);
 N_plans=params.N_plans;
-maxConcurrentJobs=200;
+maxConcurrentJobs=100;
 jobsPerIteration=N_plans*params.numOfMonths;
 maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
 N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
 
 solutionStats=zeros(params.N_CE,4);
 bestPlanVec = cell(params.N_CE,1);
-bestPlanVecTemp = cell(8,N_plans,params.N_CE);
+bestPlanVecTemp = cell(9,N_plans,params.N_CE);
 i_CE=1;
 
 killRemainingJobs(jobArgs);
@@ -84,7 +84,7 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             killRemainingJobs(jobArgs);
         end
         deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
-        [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad] = ...
+        [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values] = ...
             extractObjectiveValue(localIterDir,N_plans,params,config);
         %         S=planValues(~isnan(planValues));
         %% calibrate the barrier function according to planValues
@@ -92,7 +92,8 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             barrier_struct = calibrate_barrier(planValues);
         end
         %% calculate objective values
-        success_rate_barrier_values = 5*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
+        K=2;
+        success_rate_barrier_values = K*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
         objective_values = planValues + success_rate_barrier_values;
         [S_sorted_includingNan,I] = sort(objective_values);
         S_sorted=S_sorted_includingNan(~isnan(S_sorted_includingNan));
@@ -115,6 +116,7 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
             bestPlanVecTemp{6,j_plan,i_CE}  = lostLoad(I(j_plan));
             bestPlanVecTemp{7,j_plan,i_CE}  = success_rate_barrier_values(I(j_plan));
             bestPlanVecTemp{8,j_plan,i_CE}  = success_rate_values(I(j_plan));
+            bestPlanVecTemp{9,j_plan,i_CE}  = relative_nn_std_values{I(j_plan)};
         end
         bestPlanVec{i_CE}=bestPlanVecTemp(:,1:length(S_sorted),i_CE);
         p'

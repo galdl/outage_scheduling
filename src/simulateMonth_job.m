@@ -9,8 +9,7 @@ rng('shuffle');
 loaded_arguments =load([argumentFileDir,'/',argumentFilename]);
 nn_database =load(loaded_arguments.db_file_path); % all information needed is in the DB
 %% restore data
-[final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]...
-    ,nn_database.num_data_chunks);
+[final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]);
 nn_db.final_db = final_db; nn_db.sample_matrix = sample_matrix;
 %% call the function
 [monthlyStats]=simulateMonth(loaded_arguments.i_month,loaded_arguments.maintenancePlan,nn_db,loaded_arguments.params)

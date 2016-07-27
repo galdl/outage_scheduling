@@ -25,7 +25,7 @@ for k=1:params.horizon
     %% first try to follow commitment plan
     if(~deviate)
         [state,contingenciesHappened] = updateState(params,state); %possible take stress levels as input
-        [~,objective,onoff,y,~,success,windSpilled] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
+        [~,objective,onoff,y,~,success,windSpilled,loadLost] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
         %% if couldn't follow original commitment - remove this constraint for all remaining hours
         if (~success) % indication of infeasibility - this block runs at most once. don't advance time here since it was already done
             display(['DEVIATION (re-commitment) at time ',num2str(k)]);
@@ -36,10 +36,10 @@ for k=1:params.horizon
             %a: no, use state, since we tried the original plan and its stresss led
             %to contingecies (or haven't, but age did), so thats our
             %current topology. state.currTime still hasn't advanced.
-            [Pg,objective,onoff,y,demandVector,success,windSpilled] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
+            [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
         end
     else
-            [Pg,objective,onoff,y,demandVector,success,windSpilled] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
+            [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
             [state,contingenciesHappened] = updateState(paramsCopy,state);
 
     end
@@ -48,7 +48,7 @@ for k=1:params.horizon
     state.currTime = state.currTime+1;
     %escalateLevelVec(k)=escalateLevel; obsolete
     totalWindSpilled=totalWindSpilled+sum(sum(windSpilled));
-    %totalLoadLost=totalLoadLost+loadLost; will be used in the future
+    totalLoadLost=totalLoadLost+loadLost;
     finalOnoff(:,k)=onoff;
     totalObjective=totalObjective+objective;
     deviationCost = deviationCost + pgDeviationCost(originalPg(:,k),originalOnoff(:,k),value(y),params.mpcase.gencost);

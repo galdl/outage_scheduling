@@ -3,7 +3,7 @@ function [final_db,sample_matrix,finished_idx] = ...
 
 
 finished_idx = [];
-sample_matrix=nan(params.nl+2*params.nb*params.horizon,N_jobs*params.N_samples_bdb);
+sample_matrix=nan(calculate_sample_matrix_size(params,N_jobs));
 final_db = cell(size(sample_matrix,2),1);
 
 for i_job=1:N_jobs
@@ -36,7 +36,7 @@ for i_job=1:N_jobs
             end
         end
     catch ME
-        warning(['Problem using extractVIData_case24 for iteration = ' num2str(i_job)]);
+        warning(['Problem using extract_data for iteration = ' num2str(i_job)]);
         msgString = getReport(ME);
         display(msgString);
     end

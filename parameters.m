@@ -1,13 +1,13 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=240; %500
+params.N_jobs_NN=100; %240
 %% number of samples for building db in each job
 params.N_samples_bdb = 300; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);
 
 %% Outage_scheduling simulation parameters
-params.N_CE=15;
+params.N_CE=15; %15
 %in case5, 4 months, 75 plans , 2x10 - finished in 40 mins
 %in case9, 4 months, 75 plans , 2x25 - finished in 4 hours
 %in case9, 8 months, 75 plans , 3x25 - in 7 hours t.o, 280 out of 600
@@ -88,8 +88,8 @@ params.verbose = 0;
 
 % params.optimizationSettings = sdpsettings('solver','cplex','cplex.timelimit',5,'verbose',params.verbose); %gurobi,sdpa,mosek
 
-params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
-% params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); 
+% params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
+params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); 
 
 % ops = sdpsettings('solver','cplex');
 %% db random NN mode
