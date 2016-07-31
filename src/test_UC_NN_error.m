@@ -7,7 +7,7 @@ function [difference_vector,uc_samples] = test_UC_NN_error( final_db , sample_ma
 % random mode
 %% test how feasible NN solutions are
 N_test = params.N_samples_test;
-N_test = 22;
+N_test = 1;
 if(params.db_rand_mode)
     vec_size = 7+params.KNN;
 else vec_size = 3+params.KNN; 
@@ -32,20 +32,23 @@ for j=1:N_test
     %% find K nearest neighbours
     [NN_uc_sample_vec,NN_uc_sample_rand]= get_uc_NN(final_db,sample_matrix,uc_sample_orig,params);
     tic
-    %% compute optimal UC plan for the drawn case
+    % compute optimal UC plan for the drawn case
     uc_sample_orig = run_UC(params.n1_str , state , uc_sample_orig.demandScenario , uc_sample_orig.windScenario , uc_sample_orig.line_status, params);
     uc_samples{j,1} = uc_sample_orig;
     uc_samples{j,2} = NN_uc_sample_vec;
     uc_samples{j,3} = NN_uc_sample_rand;
+    %till this point - no crashes
     %% compute the difference in reliability for the two plans (do it twice in db rand mode)
     if(uc_sample_orig.success)
+        display([datestr(clock,'yyyy-mm-dd-HH-MM-SS'),'-success in iteration ',num2str(j)]);
+
         [reliability_difference1,n1_matrix_difference1,reliability_orig,reliability_NN,connected_nn] = ...
             compare_UC_solutions(uc_sample_orig , NN_uc_sample_vec , params , params.KNN);
         if(connected_nn)
             difference_vector(j,1:3+params.KNN) = [reliability_difference1,n1_matrix_difference1,reliability_orig,reliability_NN]';
         end
 
-        %% if db rand NN mode, return also its difference for comparison with actual NN
+        % if db rand NN mode, return also its difference for comparison with actual NN
         if(params.db_rand_mode)
             [reliability_difference_rand,n1_matrix_difference_rand,reliability_orig_rand,reliability_NN_rand,connected_rand] = ...
                 compare_UC_solutions(uc_sample_orig , NN_uc_sample_rand , params , 1);

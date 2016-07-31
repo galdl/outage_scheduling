@@ -64,6 +64,17 @@ params.horizon=24;
 params.nb   = size(mpcase.bus, 1);    %% number of buses
 params.nl   = size(mpcase.branch, 1); %% number of branches
 params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
+%% set up requested outages
+ro = zeros(params.nl,1);
+if(strcmp(caseName,'case24'))
+    ro(1)=2; ro(3:5)=1; ro(10)=2; ro(15)=1; ro(20)=2;
+end
+if(strcmp(caseName,'case5'))
+    ro(1)=2; ro(3)=1; ro(6)=1;
+end
+params.requested_outages = ro;
+params.shrinkage_factor = 0.75; %shrink the schedule probability matrix entries
+%that were chosen from one month to the next by this amount
 %% wind params
 params.windBuses = caseParams.windBuses;
 params.windHourlyForcast = caseParams.windHourlyForcast;
@@ -89,7 +100,7 @@ params.verbose = 0;
 % params.optimizationSettings = sdpsettings('solver','cplex','cplex.timelimit',5,'verbose',params.verbose); %gurobi,sdpa,mosek
 
 % params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose); %good for hermes
-params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1); 
+params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verbose,'cplex.output.clonelog',-1);
 
 % ops = sdpsettings('solver','cplex');
 %% db random NN mode

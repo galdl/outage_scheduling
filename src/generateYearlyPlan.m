@@ -1,21 +1,10 @@
-function yearlyPlan = generateYearlyPlan(tempP,epsilon)
-
-yearlyPlan=zeros(size(tempP));
-indexMat=reshape(1:length(tempP(:)),size(tempP));
-numOfMaintenances=min(size(tempP));
-for i_maintenance=1:numOfMaintenances
-    normalizedP1Vec=calcNormalizedP1Vec(tempP,epsilon,1);
-    drawnIndices = mnrnd(1,normalizedP1Vec,1);
-    %         indices = arrayfun(@(j) find(drawnIndices(j,:)) , 1:size(drawnIndices,1));
-    index=find(drawnIndices);
-    if(index~=length(normalizedP1Vec))
-        [r,c]=ind2sub(size(tempP),index);
-        [innerIndex_r,innerIndex_c]=ind2sub(size(yearlyPlan),indexMat(index));
-        yearlyPlan(innerIndex_r,innerIndex_c)=1;
-        
-        tempP(r,:)=[];
-        tempP(:,c)=[];
-        indexMat(r,:)=[];
-        indexMat(:,c)=[];
-    end
+function yearly_plan = generateYearlyPlan(p,epsilon,params)
+ro = params.requested_outages;
+% non_null_plan = zeros(num_assets,size(p,2));
+yearly_plan=zeros(size(p));
+% indexMat=reshape(1:length(p(:)),size(p));
+shrinkage_vec = ones(1,size(p,2));
+for i_asset=find(ro)'
+    [drawn_row,shrinkage_vec] = draw_row(p(i_asset,:),ro(i_asset),shrinkage_vec,epsilon,params);
+    yearly_plan(i_asset,:) = drawn_row;
 end

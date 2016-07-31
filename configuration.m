@@ -17,7 +17,7 @@ config.SAVE_FILENAME = [config.run_mode,'_saved_run'];
 % (setting whether such server is used is done with 'remote_cluster' variable)
 config.REMOTE_DIR_ROOT = '/u/gald/PSCC16_continuation/current_version/';
 config.REMOTE_SERVER_MATLAB_WORKPATH = '/u/gald/PSCC16_continuation/current_version/src';
-config.REMOTE_SERVER_MATLAB_PROGRAM_PATH = '/usr/local/bin/matlab';
+config.REMOTE_SERVER_MATLAB_PROGRAM_PATH = '/usr/local/bin/matlab2015b';
 % relative dir is shared among the local and remote dirs. 
 if(strcmp(config.program_name,'outage_scheduling'))
     folder = 'Outage_scheduling';

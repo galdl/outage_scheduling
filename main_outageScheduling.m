@@ -4,15 +4,19 @@ set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
 run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 2;
-caseName = 'case5'; %case5,case9,case14,case24
+prefix_num = 1;
+caseName = 'case24'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program
 [jobArgs,params,dirs,config] = ...
     initialize_program(relativePath,prefix_num,caseName,program_name,run_mode);
 %% Load UC_NN database path
-db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-19-19-00-27--1--case5',...
+%% case 5
+% db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-19-19-00-27--1--case5',...
+%     '/optimize_saved_run'];
+%% case 24
+db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
     '/optimize_saved_run'];
 %% meta-optimizer initialized
 pauseDuration=60; %seconds
@@ -46,7 +50,7 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
         mkdir(localIterDir);
         
         %% build directory structure
-        X = generatePlans(reshape(p,planSize),N_plans,epsilon);
+        X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
         %% choose current solutions
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
         %% prepere jobs and send all of them to cluster

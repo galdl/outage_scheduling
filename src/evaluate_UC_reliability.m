@@ -1,7 +1,9 @@
 function [reliability,n1_matrix,connected] = evaluate_UC_reliability(uc_sample,params)
 %% initialize
 run('get_global_constants.m')
-mpopt = mpoption('out.all', 0,'verbose', 0,'pf.alg','NR'); %NR(def), FDXB, FDBX, GS
+% mpopt = mpoption('out.all', 0,'verbose', 0,'pf.alg','NR'); %NR(def), FDXB, FDBX, GS
+% mpopt = mpoption('out.all', 0,'verbose', 0,'model','DC','opf.dc.solver', 'CPLEX');
+mpopt = mpoption('out.all', 0,'verbose', 0,'model','DC','opf.dc.solver', 'CPLEX','cplex.opts.output.clonelog',-1);
 cont_list_length = params.nl+1;
 sz = [cont_list_length,params.horizon];
 reliability = zeros(1,params.horizon);
@@ -38,7 +40,10 @@ for t = 1:params.horizon
             pfRes.success=0;
         else
             try
+                display('before');
                 pfRes=rundcpf(newMpcase,mpopt);
+                                display('after');
+
 %                 pfRes=runpf(newMpcase,mpopt);
                 
             catch

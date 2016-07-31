@@ -1,4 +1,4 @@
-function X = generatePlans(p,N_plans,epsilon)
+function X = generatePlans(p,N_plans,epsilon,params)
 X=zeros(length(p(:)),N_plans);
 planSize=size(p);
 mPlanBatch=zeros([planSize,N_plans]);
@@ -10,7 +10,7 @@ for i_plan=1:N_plans
     for i_plan_yearly=1:numOfYearlyPlans
         relevantMonths=(i_plan_yearly-1)*numOfMonthsPerYearlyPlan+1:min(i_plan_yearly*numOfMonthsPerYearlyPlan,planSize(2));
         tempP=p(:,relevantMonths);
-        yearlyPlan = generateYearlyPlan(tempP,epsilon);
+        yearlyPlan = generateYearlyPlan(tempP,epsilon,params);
         fullPlan=[fullPlan,yearlyPlan];
     end
     
