@@ -24,18 +24,23 @@ for t = 1:params.horizon
     end
     %% N-1 criterion - N(=nl) possible single line outage
     for i_branch = 1:cont_list_length
+        %     display(['i_branch value: ',num2str(i_branch)])
         newMpcase=updatedMpcase;
         newMpcase.branch(i_branch,BR_STATUS)=0;
-        if(~checkConnectivity(newMpcase,params))
-            display(['Not Connected for ',num2str(i_branch)]);
-            pfRes.success=0;
-        elseif(sum(newMpcase.branch(:,BR_STATUS))==0)
+            if(~checkConnectivity(newMpcase,params))
+                display(['Not Connected for ',num2str(i_branch)]);
+            end
+        end
+        if(sum(newMpcase.branch(:,BR_STATUS))==0)
             pfRes.success=0;
         else
             try
                 display('before');
                 pfRes=rundcpf(newMpcase,mpopt);
                 display('after');
+                
+                %                 pfRes=runpf(newMpcase,mpopt);
+                
             catch
             end
         end

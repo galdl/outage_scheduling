@@ -7,7 +7,7 @@ for j=1:i_CE-1
             c=c+1;
             stats{1}=[stats{1}, bestPlanVecTemp{4,i,j}];
             stats{2}=[stats{2},bestPlanVecTemp{7,i,j}];
-            stats{3}=[stats{3},bestPlanVecTemp{8,i,j}];
+            stats{3}=[stats{3},bestPlanVecTemp{8,i,j}]; %success rate values
             stats{4} = [stats{4},K*success_rate_barrier(bestPlanVecTemp{8,i,j},barrier_struct,params.alpha,i_CE-1)];
             stats{5}=[stats{5},bestPlanVecTemp{6,i,j}]; %lost load
             if(~isempty(bestPlanVecTemp{9,i,j}))              %one-time fix. remove after used onces (happened since I(j_plan) was not originally used for bestPlanVecTemp{9,i,j})   
@@ -26,6 +26,9 @@ for i_plot=1:num_of_plots
     plot(values(i_plot,:));
     title(titles{i_plot});
 end
+% for j=1:6
+%     size(stats{j})
+% end
 
 %% reconstruct o3 - for the experiment done when it wasn't available
 % o3_values = zeros(1,i_CE-1);

@@ -1,4 +1,4 @@
-function [dailyStats,state] = simulateDay(params,state)
+function [dailyStats,state] = simulateDay(params,state,day_number)
 %% variable initialization
 isStochastic=1;
 
@@ -14,10 +14,14 @@ dailyStats.relative_nn_std=[];
 
 %% First part - generate day-ahead UC forecast
 % in the future - change wind profile according to date
-[demandScenario,windScenario] = generateDemandWind_with_category(1:params.horizon,params,state,isStochastic);
-
-uc_sample_in.windScenario = windScenario;
-uc_sample_in.demandScenario = demandScenario;
+% [demandScenario_DA,windScenario_DA] =
+% generateDemandWind_with_category(1:params.horizon,params,state,isStochastic);
+% moved it to the main server side - for shared scenarios, to reduce
+% variance
+demandScenario_DA = params.demandScenario_DA{day_number};
+windScenario_DA = params.windScenario_DA{day_number};
+uc_sample_in.windScenario = windScenario_DA;
+uc_sample_in.demandScenario = demandScenario_DA;
 beginning_of_day_hour=1; dynamicUC=0;
 uc_sample_in.line_status = getFixedLineStatus(beginning_of_day_hour,dynamicUC,params,state); 
 if(params.use_NN_UC)
@@ -37,7 +41,7 @@ for i_sample = 1:params.dynamicSamplesPerDay
     try
         
         %% draw RT wind and demand and run step-by-step DCOPFs for costs and reliability assesment
-        [windScenario_RT,demandScenario_RT] = generate_RT_wind_demand(windScenario,demandScenario,params);
+        [windScenario_RT,demandScenario_RT] = generate_RT_wind_demand(windScenario_DA,demandScenario_DA,params);
         params.windScenario = windScenario_RT;
         params.demandScenario = demandScenario_RT;
         originalPg = uc_sample_out.Pg;

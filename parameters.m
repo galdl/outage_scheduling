@@ -22,6 +22,11 @@ params.numOfMonths=8;
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=1;
 params.use_NN_UC = true;
+%if false - success rate will be simply the rate of success
+%if true - success rate will be computed as the portion of N-1 list that is
+%recoverable, averaged over the 24-hours (increases complexity by a factor
+%of params.nl, per each day of simulation)
+params.n1_success_rate = true;
 %% seperate the edited cases (which include dynamic parameters for UC,
 %% s.a min up/down times, initial state, etc.) and the non-edited, classic matpower cases
 if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','case96'}))>0)

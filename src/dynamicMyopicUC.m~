@@ -8,8 +8,6 @@ paramsCopy.horizon=1;
 deviationCost=0;
 totalObjective=0;
 finalOnoff=zeros(params.ng,params.horizon);
-finalPg=zeros(params.ng,params.horizon);
-finalWindSpilled = zeros(params.nb,params.horizon);
 deviationTime=0;
 dynamicUCParams.enforceOnoff=1;
 escalateLevelVec=zeros(params.horizon,1);
@@ -27,7 +25,7 @@ for k=1:params.horizon
     %% first try to follow commitment plan
     if(~deviate)
         [state,contingenciesHappened] = updateState(params,state); %possible take stress levels as input
-        [Pg,objective,onoff,y,~,success,windSpilled,loadLost] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
+        [~,objective,onoff,y,~,success,windSpilled,loadLost] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
         %% if couldn't follow original commitment - remove this constraint for all remaining hours
         if (~success) % indication of infeasibility - this block runs at most once. don't advance time here since it was already done
             display(['DEVIATION (re-commitment) at time ',num2str(k)]);
@@ -45,28 +43,24 @@ for k=1:params.horizon
             [state,contingenciesHappened] = updateState(paramsCopy,state);
 
     end
-    %if it is not overriden after the for loop - success rate will be simply the rate of success
-    success_rate = success_rate + success/params.horizon;
+    if(~params.n1_success_rate) %success rate will be simply the rate of success
+        success_rate = success_rate + success/params.horizon;
+    end
     allContingenciesHappened=allContingenciesHappened+contingenciesHappened;
     state.currTime = state.currTime+1;
     %escalateLevelVec(k)=escalateLevel; obsolete
     totalWindSpilled=totalWindSpilled+sum(sum(windSpilled));
     totalLoadLost=totalLoadLost+loadLost;
     finalOnoff(:,k)=onoff;
-    finalPg(:,k) = Pg;
-    finalWindSpilled(:,k) = windSpilled;
     totalObjective=totalObjective+objective;
     deviationCost = deviationCost + pgDeviationCost(originalPg(:,k),originalOnoff(:,k),value(y),params.mpcase.gencost);
     state.initialGeneratorState = getInitialGeneratorState_oneStep(onoff,state.initialGeneratorState,params);
 end
 if(params.n1_success_rate) %success rate will be computed as the portion of N-1 list that is recoverable, averaged over the 24-hours
-    uc_sample.onoff = finalOnoff;
-    uc_sample.Pg = finalPg;
-    uc_sample.windSpilled = finalWindSpilled;
-    uc_sample.demandScenario = params.demandScenario;
-    uc_sample.windScenario = params.windScenario;
-    %notice that state.topology.lineStatus can change every hour, but we'll fix the line status for evaluation to the last hour
-    uc_sample.line_status = state.topology.lineStatus; 
-    uc_sample.voltage_setpoints = [];
-    success_rate = evaluate_UC_reliability(uc_sample,params);
+    uc_sample.onoff =
+    
+    uc_sample.onoff , uc_sample.Pg , uc_sample.windSpilled ,...
+        uc_sample.demandScenario , uc_sample.windScenario , uc_sample.line_status, params , uc_sample.voltage_setpoints );
+    
+    
 end

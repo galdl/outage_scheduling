@@ -28,7 +28,7 @@ n = planSize(1)*planSize(2);
 % p = (2/planSize(1))*ones(n,1);
 p = 0.5*ones(n,1);
 N_plans=params.N_plans;
-maxConcurrentJobs=100;
+maxConcurrentJobs=160;
 jobsPerIteration=N_plans*params.numOfMonths;
 maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
 N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
@@ -61,7 +61,8 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
                 [localPlanDir,remotePlanDir]=...
                     perparePlanDir(localIterDir,remoteIterDir,i_plan,config.PLAN_DIRNAME_PREFIX);
                 for i_month=1:params.numOfMonths
-                    [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params,config);
+                    params_with_DA_scenarios = generate_shared_DA_scenarios(params);
+                    [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios,config);
                     [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,i_CE,remotePlanDir,jobArgs,argContentFilename);
                     sendJob('simulateMonth_job',funcArgs,jobArgs,config);
                 end

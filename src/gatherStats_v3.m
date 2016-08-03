@@ -94,6 +94,7 @@ xlabel('Iteration Count', 'FontSize', fontSize)
 ylabel('Objective Cost[$]', 'FontSize', fontSize)
 %% gather frequency of repair matrix
 numSize=10;
+fontSize=17;
 
 
 N_plans=zeros(length(N_iter),1);
@@ -112,7 +113,7 @@ for i_iter=1:N_iter
     %     mat(:,:,i_iter)=min(1,mat(:,:,i_iter)./repmat(max(sum(mat(:,:,i_iter),1),epsilon),planSize(1),1));
     mat(:,:,i_iter)=mat(:,:,i_iter)./(N_plans(i_iter)*ones(planSize));
     ax(i_iter)=subplot(2,5,i_iter);
-    imagesc(mat(:,:,i_iter));
+    imagesc(mat(find(params.requested_outages),:,i_iter));
     colormap('gray')
     colormap(flipud(colormap)); caxis([0,1]);
     set(ax(i_iter), 'fontsize', numSize);

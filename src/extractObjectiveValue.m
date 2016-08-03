@@ -8,6 +8,7 @@ contingenciesFrequency = nan(params.nl,params.numOfMonths,N_plans); %frequencies
 monthlyCost = nan(N_plans,params.numOfMonths); %average cost per month, per plan
 lostLoad=zeros(N_plans,1);
 numOfMonthsPerPlan =  zeros(N_plans,1);
+N_plans = 20;
 for i_plan=1:N_plans
     %     lsPath=[iterationDir,'/',PLAN_DIRNAME_PREFIX,num2str(i_plan),'/*.mat'];
     lsPath=[iterationDir,'/',config.PLAN_DIRNAME_PREFIX,num2str(i_plan)];
@@ -60,6 +61,7 @@ for i_plan=1:N_plans
             lostLoad(i_plan) = lostLoad(i_plan) + mean(dynamicLoadLost);
             monthlyCost(i_plan,parsedMonthNum) = mean(dynamicObjective);
             success_rate_values(i_plan) = success_rate_values(i_plan) + mean(success_rate);
+            inspect_success_rate
             relative_nn_std_values{i_plan} = [relative_nn_std_values{i_plan},relative_nn_std_per_plan];
             
         end

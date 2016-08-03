@@ -2,14 +2,13 @@ function  [demand_with_category,wind_with_category] = generateDemandWind_with_ca
 % draw a daily factor and inflate demand, deflate wind with that factor
 run('get_global_constants.m');
 
-categories = [1,3,5.5];
+num_categories = [1,3,5.5];
 
-if(nargin>4) %deterministic or random choice of daily profile
-    i_category = categories(1+mod(category_num-1,length(categories)));
+if(nargin>4)
+    i_category = num_categories(category_num);
 else
-    i_category = randsample(categories,1); 
-end
 % num_categories = 5;
+i_category = randsample(num_categories,1); 
 % i_category=3; %TODO: when we see the overall program works well, we can change the category to be sampled from num_categories
 
 base_demand_factor = 0.15;
