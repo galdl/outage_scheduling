@@ -1,6 +1,6 @@
 function config = configuration(program_name,run_mode)
 %% Configuration file is used for setting environment params, such as paths
-
+%hello!
 % set run mode - optimize and find optimal plan, or compare to other
 %algorithms
 config.program_name = program_name;
