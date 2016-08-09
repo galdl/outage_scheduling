@@ -1,14 +1,21 @@
-function  [demand_with_category,wind_with_category] = generateDemandWind_with_category(time_vector,params,state,isStochastic,category_num)
+function  [demand_with_category,wind_with_category] = generateDemandWind_with_category(time_vector,params,state,isStochastic,i_month)
 % draw a daily factor and inflate demand, deflate wind with that factor
 run('get_global_constants.m');
 
 categories = [1,3,5.5];
+monthly_categories = [5.5,5,4,3,3,2,1,1]; %Feb to Aug. high means high demand.
+% if(nargin>4) %deterministic or random choice of daily profile
+%     i_category = categories(1+mod(category_num-1,length(categories)));
+% else
+%     i_category = randsample(categories,1); 
+% end
 
-if(nargin>4) %deterministic or random choice of daily profile
-    i_category = categories(1+mod(category_num-1,length(categories)));
+if(nargin>4) % depends on the month
+    i_category = monthly_categories(i_month);
 else
     i_category = randsample(categories,1); 
 end
+
 % num_categories = 5;
 % i_category=3; %TODO: when we see the overall program works well, we can change the category to be sampled from num_categories
 

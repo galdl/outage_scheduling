@@ -95,7 +95,7 @@ ylabel('Objective Cost[$]', 'FontSize', fontSize)
 %% gather frequency of repair matrix
 numSize=10;
 fontSize=17;
-
+N_iter=i_CE-1;
 
 N_plans=zeros(length(N_iter),1);
 for i_iter=1:N_iter

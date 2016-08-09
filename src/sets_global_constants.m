@@ -1,4 +1,7 @@
 function [] = sets_global_constants()
+% Matpower tool uses constants, loaded using define_constnats
+% function. Calling this function is relatively heavy. Setting them as
+% global significantly improves efficiency. 
 global global_consts
 define_constants;
 

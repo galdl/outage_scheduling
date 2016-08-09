@@ -8,7 +8,6 @@ contingenciesFrequency = nan(params.nl,params.numOfMonths,N_plans); %frequencies
 monthlyCost = nan(N_plans,params.numOfMonths); %average cost per month, per plan
 lostLoad=zeros(N_plans,1);
 numOfMonthsPerPlan =  zeros(N_plans,1);
-N_plans = 20;
 for i_plan=1:N_plans
     %     lsPath=[iterationDir,'/',PLAN_DIRNAME_PREFIX,num2str(i_plan),'/*.mat'];
     lsPath=[iterationDir,'/',config.PLAN_DIRNAME_PREFIX,num2str(i_plan)];

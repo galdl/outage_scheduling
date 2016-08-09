@@ -1,6 +1,6 @@
 function config = configuration(program_name,run_mode)
 %% Configuration file is used for setting environment params, such as paths
-%hello!
+
 % set run mode - optimize and find optimal plan, or compare to other
 %algorithms
 config.program_name = program_name;
@@ -31,7 +31,7 @@ config.JOB_DIRNAME_PREFIX = 'job_data_';
 config.CLUSTER_OUTPUT_DIRNAME = 'output';
 config.CLUSTER_ERROR_DIRNAME = 'error';
 config.TEMPFILES_DIR = '/tempJobFiles/';
-config.JOB_NAME_PREFIX = [config.program_name(1:2),'_',config.run_mode(1:3)];
+config.JOB_NAME_PREFIX = [config.program_name(1:2),'_',config.run_mode(1:2)];
 % the portions of the jobs that returned from the server, to 
 config.fraction_of_finished_jobs=0.95;
 

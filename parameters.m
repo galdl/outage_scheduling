@@ -1,10 +1,10 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=100; %240
+params.N_jobs_NN=3; %240
 %% number of samples for building db in each job
 params.N_samples_bdb = 300; %400
 %% num samples for testing in each job
-params.N_samples_test = ceil(params.N_samples_bdb/8);
+params.N_samples_test = 1;%ceil(params.N_samples_bdb/8);
 
 %% Outage_scheduling simulation parameters
 params.N_CE=15; %15
@@ -15,10 +15,10 @@ params.N_CE=15; %15
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=3; %3
-params.dynamicSamplesPerDay=5; %5
-params.N_plans=75; %75
-params.numOfMonths=8;
+params.numOfDaysPerMonth=1; %3. currently 1 since there is no difference between them in any case
+params.dynamicSamplesPerDay=3; %5. reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
+params.N_plans=150; %75
+params.numOfMonths=8; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=1;
 params.use_NN_UC = true;
@@ -63,6 +63,14 @@ else
     mpcase=funcHandle();
 end
 params.mpcase=mpcase;
+
+% small corrections needed for RTS96 network
+if(strcmp('case96',params.caseName))
+    case24_copy = case24_ieee_rts;
+    case24_pmin = case24_copy.gen(:,PMIN);
+    params.mpcase.gen(:,PMIN) = repmat(case24_pmin,[3,1]);
+end
+
 params.verbose=0;
 params.horizon=24;
 %% data dimensions
@@ -72,7 +80,7 @@ params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
 %% set up requested outages
 ro = zeros(params.nl,1);
 if(strcmp(caseName,'case24'))
-    ro(1)=2; ro(3:5)=1; ro(10)=2; ro(15)=1; ro(20)=2;
+    ro(1)=2; ro(3:5)=1; ro(10)=2;  ro(15)=1; ro(20)=2; ro(14)=1; ro(17)=1; ro(28)=1; ro(30)=1; ro(35)=2; %ro(11)=1;
 end
 if(strcmp(caseName,'case5'))
     ro(1)=2; ro(3)=1; ro(6)=1;
@@ -89,13 +97,13 @@ params.alpha = 0.05; % success_rate chance-constraint parameter : P['bad event']
 %% demand and wind STDs
 params.demandStd = 0.05; %0.05
 params.muStdRatio = 0.15;
-params.rand_walk_w_std = 0.03;
-params.rand_walk_d_std = 0.01;
+params.rand_walk_w_std = 0.015; %0.03
+params.rand_walk_d_std = 0.005; %0.01
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost
 params.finePayment = sum(mpcase.bus(:,3))*params.VOLL; %multiple of the full LS cost - this is per hour
-params.fixDuration=24;
+params.fixDuration=24*params.numOfDaysPerMonth+1;
 %% optimization settings
 params.verbose = 0;
 % params.optimizationSettings =  sdpsettings('solver','mosek','mosek.MSK_DPAR_MIO_MAX_TIME',200,'verbose',params.verbose); %gurobi,sdpa,mosek

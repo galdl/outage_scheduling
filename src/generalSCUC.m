@@ -318,6 +318,6 @@ objective=value(Objective);
 onoff=value(onoff);
 success = (~isempty(strfind(result.info,'Successfully solved')));
 windSpilled=value(sp);
-loadLost = sum(sum(value(ls)));
+loadLost = value(ls);
 
 

@@ -26,6 +26,19 @@ for i_plot=1:num_of_plots
     plot(values(i_plot,:));
     title(titles{i_plot});
 end
+
+figure(10);
+xyHandles = zeros(1,i_CE-1);
+%this is averaged over months (average planValues per month)
+for i_plot=1:i_CE-1
+    xyHandles(i_plot) = subplot(3,4,i_plot);
+    hist(cell2mat(bestPlanVecTemp(8,:,i_plot)))
+    title(num2str(i_plot));
+end
+
+linkaxes(xyHandles,'xy');
+ylim([0,100]);
+
 % for j=1:6
 %     size(stats{j})
 % end

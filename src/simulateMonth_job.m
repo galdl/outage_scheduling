@@ -3,7 +3,7 @@ addHermesPaths;
 if(strcmp('/u/gald/PSCC16_continuation/current_version',eval('pwd')))
     addpath(genpath('/u/gald/Asset_Management/matlab/matpower5.1/'));
 end
-sets_global_constants;
+set_global_constants;
 rng('shuffle');
 %% load arguments
 loaded_arguments =load([argumentFileDir,'/',argumentFilename]);

@@ -9,6 +9,9 @@ state.topology.lastChange = getLastChangeVector(maintenancePlan,month,params);
 %% assume all assets are on-line in the beginning of the month
 state.topology.lineStatus = ones(params.nl,1);
 
+%% maintenance currently takes the asset offline for the whole duration of this month's simulation, since params.fixDuration=24*params.numOfDaysPerMonth
+state.topology.lineStatus = 1 - maintenancePlan(:,month);
+
 %% set initial generator state to the original one
 state.initialGeneratorState=params.initialGeneratorState;
 

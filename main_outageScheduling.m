@@ -13,11 +13,15 @@ program_matlab_name = program_path{end};
     initialize_program(relativePath,prefix_num,caseName,program_name,run_mode);
 %% Load UC_NN database path
 %% case 5
-% db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-19-19-00-27--1--case5',...
-%     '/optimize_saved_run'];
+if(strcmp(caseName,'case5'))
+    db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-19-19-00-27--1--case5',...
+        '/optimize_saved_run'];
+end
 %% case 24
-db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
-    '/optimize_saved_run'];
+if(strcmp(caseName,'case24'))
+    db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
+        '/optimize_saved_run'];
+end
 %% meta-optimizer initialized
 pauseDuration=60; %seconds
 timeOutLimit=60*pauseDuration*20;
@@ -28,7 +32,7 @@ n = planSize(1)*planSize(2);
 % p = (2/planSize(1))*ones(n,1);
 p = 0.5*ones(n,1);
 N_plans=params.N_plans;
-maxConcurrentJobs=160;
+maxConcurrentJobs=180;
 jobsPerIteration=N_plans*params.numOfMonths;
 maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
 N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
@@ -55,13 +59,13 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
         %% prepere jobs and send all of them to cluster
         previousIterationsJobs=0;
-        for i_CE_inner=1:N_CE_inner
+        for i_CE_inner=1:N_CE_inner %TODO: change back!!!
             innerPlanRange=(i_CE_inner-1)*maxConcurrentPlans+1:min(i_CE_inner*maxConcurrentPlans,N_plans);
             for i_plan=innerPlanRange
                 [localPlanDir,remotePlanDir]=...
                     perparePlanDir(localIterDir,remoteIterDir,i_plan,config.PLAN_DIRNAME_PREFIX);
                 for i_month=1:params.numOfMonths
-                    params_with_DA_scenarios = generate_shared_DA_scenarios(params);
+                    params_with_DA_scenarios = generate_shared_DA_scenarios(params,i_month);
                     [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios,config);
                     [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,i_CE,remotePlanDir,jobArgs,argContentFilename);
                     sendJob('simulateMonth_job',funcArgs,jobArgs,config);

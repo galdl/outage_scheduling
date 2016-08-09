@@ -1,6 +1,6 @@
 function sample_db = build_NN_db(params)
 % generates sample DB
-run('sets_global_constants.m');
+run('set_global_constants.m');
 N_samples = params.N_samples_bdb;
 sample_db = cell(N_samples,1);
 isStochastic = true;

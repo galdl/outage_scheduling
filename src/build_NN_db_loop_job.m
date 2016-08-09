@@ -2,7 +2,7 @@ function []=build_NN_db_loop_job(argeumentFileDir,argeumentFilename)
 addHermesPaths;
 if(strcmp('/u/gald/PSCC16_continuation/current_version',eval('pwd')))
     addpath(genpath('/u/gald/Asset_Management/matlab/matpower5.1/'));
-    sets_global_constants;
+    set_global_constants;
 end
 rng('shuffle');
 %% load arguments

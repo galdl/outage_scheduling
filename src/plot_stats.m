@@ -1,5 +1,6 @@
 % close all;
 KNN = params.KNN;
+font_size = 14;
 % KNN = 2;
 %% plot KNN stats and decide on label using NN
 
@@ -34,27 +35,29 @@ idx_low_std = (NN_std_full<max_std_thresh);
 xHandles2 = zeros(1,4);
 figure(3);
 
-xHandles2(1) = subplot(2,2,1);
+xHandles2(1) = subplot(2,1,1);
 reli_diff = final_db_test(idx_low_std,1);
 hist(reli_diff,50);
+title('Reliability difference: NN');
 
-xHandles2(2) =subplot(2,2,2);
+xHandles2(2) =subplot(2,1,2);
 reli_diff_rand = final_db_test(idx_low_std,4+params.KNN);
 hist(reli_diff_rand,50);
 
-xHandles2(3) =subplot(2,2,3);
-N1_diff = final_db_test(idx_low_std,2);
-hist(N1_diff,50);
+% xHandles2(3) =subplot(2,2,3);
+% N1_diff = final_db_test(idx_low_std,2);
+% hist(N1_diff,50);
+% 
+% xHandles2(4) =subplot(2,2,4);
+% N1_diff_rand = final_db_test(idx_low_std,6);
+% hist(N1_diff_rand,50);
 
-xHandles2(4) =subplot(2,2,4);
-N1_diff_rand = final_db_test(idx_low_std,6);
-hist(N1_diff_rand,50);
-
-title('Reliability and N1 matrix: NN vs random');
+% title('Reliability and N1 matrix: NN vs random');
+title('Reliability difference: random');
 
 
 linkaxes(xHandles2,'xy');
-
+ylim([0,550]);
 % figure(2);
 % boxplot(final_db_test(idx_low_std,[1,5]));
 % title('Reliability: NN vs random');
@@ -120,14 +123,17 @@ end
 figure(7);
 subplot(211);
 plot(corr_vec);
-title('correlation as a function of max NN std filter');
+title('Correlation as a function of max NN std filter','FontSize', font_size);
+xlabel('Number of nearest-neighbors to filter by', 'FontSize', font_size)
+ylabel('Correlation coefficient', 'FontSize', font_size)
+set(gca,'fontsize',font_size);
 subplot(212);
 plot(samples_left);
-title('remaining samples as a function of max NN std filter');
+title('Remaining samples as a function of max NN std filter','FontSize', font_size);
+xlabel('Number of nearest-neighbors to filter by', 'FontSize', font_size)
+ylabel('Remaining samples after fliter (fraction of full data-set)', 'FontSize', font_size)
+set(gca,'fontsize',font_size);
 % linkaxes(xHandles3,'xy');
-
-
-
 
 
 %%
@@ -135,6 +141,7 @@ figure(8);
 scatter(reliability_orig_rand+Z*randn(size(reliability_orig_rand)),reliability_NN_rand+Z*randn(size(reliability_NN_rand)),S);
 %% plot cost scatter of exact vs. NN
 Z=0.000;
+Z=0;
 S=3;
 
 max_std_thresh = 1;
@@ -163,7 +170,11 @@ figure(9);
 scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn+Z*randn(size(cost_nn)),S);
 [r,p]=corr(cost_orig,cost_nn)
 
-title('cost scatter of exact vs. NN');
+% title('cost scatter of exact vs. NN');
+title(['Cost scatter of exact vs. NN. Correlation coefficient: ',num2str(r)],'FontSize', font_size);
+xlabel('Exact UC solution [$]', 'FontSize', font_size)
+ylabel('NN UC solution cost [$]', 'FontSize', font_size)
+set(gca,'fontsize',font_size);
 
 
 figure(10);
