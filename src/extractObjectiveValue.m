@@ -9,6 +9,7 @@ monthlyCost = nan(N_plans,params.numOfMonths); %average cost per month, per plan
 lostLoad=zeros(N_plans,1);
 numOfMonthsPerPlan =  zeros(N_plans,1);
 for i_plan=1:N_plans
+    try
     %     lsPath=[iterationDir,'/',PLAN_DIRNAME_PREFIX,num2str(i_plan),'/*.mat'];
     lsPath=[iterationDir,'/',config.PLAN_DIRNAME_PREFIX,num2str(i_plan)];
     monthsFolder=what(lsPath);
@@ -69,5 +70,10 @@ for i_plan=1:N_plans
         lostLoad(i_plan) = lostLoad(i_plan)/length(monthFileList);
         success_rate_values(i_plan) = success_rate_values(i_plan)/length(monthFileList);
         %success_rate is a number in [0,1], so no need to normalize it by the number of months.
+    end
+        catch ME
+        display(['Problem using extractObjectiveValue for i_plan = ' num2str(i_plan)]);
+        msgString = getReport(ME);
+        display(msgString);
     end
 end

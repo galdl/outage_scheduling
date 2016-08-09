@@ -133,6 +133,7 @@ currBranch=mpc.branch;
 for k = 1:horizon
     %% this should run only once per time step, and not for each contingency
     %     w=zeros(nb,1); w((bus(:,PD)>1))=0; w=zeros(nb,1);
+    bus = mpc.bus;
     currHour = mod(startTime-1+k-1,24)+1;
     w = params.windScenario(:,currHour);
     if(isfield(params,'demandScenario'))
@@ -177,6 +178,7 @@ for k = 1:horizon
 %             newMpcaseInternal = newMpcase;
 %         else
             newMpcaseInternal=ext2int(newMpcase); %transform to internal format,
+%            newMpcaseInternal=ext2int( newMpcase.bus, newMpcase.gen, newMpcase.branch, newMpcase.areas);
             %to remove components  that can be disconnected as a result of line outage
 %         end
         [baseMVA, bus, gen, branch, gencost, Au, lbu, ubu, mpopt, ...

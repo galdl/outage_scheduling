@@ -11,6 +11,8 @@ nn_database =load(loaded_arguments.db_file_path); % all information needed is in
 %% restore data
 [final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]);
 %% call the function
+ %nn_database.params is intentional - the configuration used to generate the
+ %samples is the same one to test them (e.g. %params.dropUpDownConstraints)
 [difference_vector,uc_samples] = test_UC_NN_error( final_db , sample_matrix , nn_database.params)
 display('finished test_UC_NN_error');
 %% save output to file

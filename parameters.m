@@ -1,6 +1,6 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=3; %240
+params.N_jobs_NN=100; %240
 %% number of samples for building db in each job
 params.N_samples_bdb = 300; %400
 %% num samples for testing in each job
@@ -20,7 +20,7 @@ params.dynamicSamplesPerDay=3; %5. reduced to three since currently we draw very
 params.N_plans=150; %75
 params.numOfMonths=8; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
 params.myopicUCForecast=1;
-params.dropUpDownConstraints=1;
+params.dropUpDownConstraints=0;
 params.use_NN_UC = true;
 %if false - success rate will be simply the rate of success
 %if true - success rate will be computed as the portion of N-1 list that is
@@ -65,11 +65,11 @@ end
 params.mpcase=mpcase;
 
 % small corrections needed for RTS96 network
-if(strcmp('case96',params.caseName))
-    case24_copy = case24_ieee_rts;
-    case24_pmin = case24_copy.gen(:,PMIN);
-    params.mpcase.gen(:,PMIN) = repmat(case24_pmin,[3,1]);
-end
+% if(strcmp('case96',params.caseName))
+%     case24_copy = case24_ieee_rts;
+%     case24_pmin = case24_copy.gen(:,PMIN);
+%     params.mpcase.gen(:,PMIN) = repmat(case24_pmin,[3,1]);
+% end
 
 params.verbose=0;
 params.horizon=24;

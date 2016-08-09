@@ -117,8 +117,10 @@ for j=1:N_std
     scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S);
     title(['max std: ',num2str(std_max_vec(j))]);
     
-    [r,p]=corr(reliability_orig,reliability_NN);
-    corr_vec(j)=r;
+    if(~isempty(reliability_orig))
+        [r,p]=corr(reliability_orig,reliability_NN);
+         corr_vec(j)=r;
+    end
 end
 figure(7);
 subplot(211);
