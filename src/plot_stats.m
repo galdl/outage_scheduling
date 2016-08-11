@@ -147,10 +147,12 @@ Z=0;
 S=3;
 
 max_std_thresh = 1;
+max_std_thresh = inf;
+
 KNN_samples = final_db_test(:,4:4+KNN-1);
 NN_std_full = std(KNN_samples,0,2);
 %retain only samples with std below max_std_thresh. Used both for removing nans, and better understaing the plot
-retain_idx = (NN_std_full<max_std_thresh);
+retain_idx = (NN_std_full<max_std_thresh); %filters out NaN as well
 
 KNN_samples_full = final_db_test(retain_idx,:);
 retain_idx_loc = find(retain_idx);

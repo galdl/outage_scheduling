@@ -19,8 +19,13 @@ if(strcmp(caseName,'case5'))
 end
 %% case 24
 if(strcmp(caseName,'case24'))
-    db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
-        '/optimize_saved_run'];
+    if(params.dropUpDownConstraints)
+        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
+            '/optimize_saved_run'];
+    else
+        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-09-19-05-41--2--case24',...
+            '/optimize_saved_run'];
+    end
 end
 %% meta-optimizer initialized
 pauseDuration=60; %seconds
@@ -32,7 +37,7 @@ n = planSize(1)*planSize(2);
 % p = (2/planSize(1))*ones(n,1);
 p = 0.5*ones(n,1);
 N_plans=params.N_plans;
-maxConcurrentJobs=180;
+maxConcurrentJobs=105;
 jobsPerIteration=N_plans*params.numOfMonths;
 maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
 N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
@@ -59,7 +64,7 @@ while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
         %% prepere jobs and send all of them to cluster
         previousIterationsJobs=0;
-        for i_CE_inner=1:N_CE_inner %TODO: change back!!!
+        for i_CE_inner=1:N_CE_inner
             innerPlanRange=(i_CE_inner-1)*maxConcurrentPlans+1:min(i_CE_inner*maxConcurrentPlans,N_plans);
             for i_plan=innerPlanRange
                 [localPlanDir,remotePlanDir]=...

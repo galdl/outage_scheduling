@@ -19,7 +19,8 @@ for t = 1:params.horizon
         updatedMpcase = get_hourly_mpcase( t , uc_sample.onoff , uc_sample.Pg , uc_sample.windSpilled , uc_sample.loadLost, ...
             uc_sample.demandScenario , uc_sample.windScenario , uc_sample.line_status, params , uc_sample.voltage_setpoints );
         %% if with no contingency it is not connected - finish
-        if((~strcmp('case96',params.caseName) && ~checkConnectivity(updatedMpcase,params)))
+        i_branch=0;
+        if((~checkConnectivity(updatedMpcase,params)))
             display('Not Connected for no contingencies!');
             connected=1; %currently drop the 'connected' concept. Always assume connected, and set reliability to be 0
             return;

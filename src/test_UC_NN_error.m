@@ -7,7 +7,7 @@ function [difference_vector,uc_samples] = test_UC_NN_error( final_db , sample_ma
 % random mode
 %% test how feasible NN solutions are
 N_test = params.N_samples_test;
-N_test = 1;
+% N_test = 1;
 if(params.db_rand_mode)
     vec_size = 7+params.KNN;
 else vec_size = 3+params.KNN; 

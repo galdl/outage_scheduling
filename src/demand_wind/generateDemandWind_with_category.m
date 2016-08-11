@@ -2,8 +2,26 @@ function  [demand_with_category,wind_with_category] = generateDemandWind_with_ca
 % draw a daily factor and inflate demand, deflate wind with that factor
 run('get_global_constants.m');
 
-categories = [1,3,5.5];
-monthly_categories = [5.5,5,4,3,3,2,1,1]; %Feb to Aug. high means high demand.
+
+categories = linspace(2.5,5.5,5);
+
+if(strcmp(params.caseName,'case24'))
+    categories = linspace(2.5,5.5,5);
+    extra_categories = linspace(4.75,5.5,4);
+    categories = [categories(1:3),extra_categories];
+    monthly_categories_vec = [7,7:-1:1];
+    monthly_categories = categories(monthly_categories_vec); 
+end
+
+if(strcmp(params.caseName,'case96'))
+    categories = linspace(2.5,5.5,5);
+    extra_categories = linspace(4.75,5.5,6);
+    categories = [categories(1:3),extra_categories];
+    monthly_categories_vec = 9:-1:2;
+    monthly_categories = categories(monthly_categories_vec); 
+end
+
+    %Feb to Aug. high means high demand.
 % if(nargin>4) %deterministic or random choice of daily profile
 %     i_category = categories(1+mod(category_num-1,length(categories)));
 % else

@@ -10,14 +10,24 @@ for j=1:N
     end
 end
 %%
-figure(10);
+figure(20);
 [v,idx] = sort(overallDemand);
 scatter(1:length(v),v,[],success(idx)); %seperate to UC success and no success
 title(['Effective demand of UC sample. Color seperation to success and no success']);
 %%
-figure(11);
-overallDemand = overallDemand((success==1));
-[v,idx] = sort(overallDemand);
+figure(21);
+overallDemand_success = overallDemand((success==1));
+[v,idx] = sort(overallDemand_success);
 scatter(1:length(v),v,[],bad_idx); %seperate to correlation and no correlation
 title(['Effective demand of UC sample. Color seperation to correlation and no correlation']);
 % plot(sort(overallDemand));
+%% costs
+
+figure(23);
+[v,idx] = sort(cost_orig);
+scatter(1:length(v),v,[],success(idx)); %seperate to UC success and no success
+%% costs and demand
+
+figure(24);
+[v,idx] = sort(cost_orig);
+scatter(cost_orig,overallDemand_success); %seperate to UC success and no success

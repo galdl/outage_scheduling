@@ -38,14 +38,15 @@ if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','cas
     loads=caseParams.loads;
     params.windScaleRatio=caseParams.windScaleRatio; %%wind generation mean will be devided by this factor
     
+    params.caseParams = caseParams;
     
     generatorData=getGeneratorData();
     mpcase=setCaseParams(caseName,generatorData,generatorTypeVector,generatorBusVector,loads,caseParams);
-    
-    if(strcmp('case96',params.caseName))
-        params.numerical_branch = modify_to_numerical_branch(mpcase.branch);
-    end
-    
+    %     if(strcmp(caseName,'case5'))
+    %         mpcase.branch=[mpcase.branch;mpcase.branch(5,:)];
+    %         mpcase.branch(7,1)=3;  %add line between bus 3 and 5 with no rating limits
+    %         mpcase.branch(7,2)=5;
+    %     end
     unitsInfo=[];
     for g=generatorTypeVector
         unitsInfo=[unitsInfo;generatorData{g}.PMIN,generatorData{g}.PMAX,generatorData{g}.MD,generatorData{g}.MU];
@@ -80,13 +81,6 @@ params.nl   = size(mpcase.branch, 1); %% number of branches
 params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
 %% set up requested outages
 ro = zeros(params.nl,1);
-
-if(strcmp(caseName,'case96'))
-    ro = zeros(40,1); %number of lines in each area
-    ro(1)=2; ro(3:5)=1; ro(10)=2;  ro(15)=1; ro(20)=2; ro(14)=1; ro(17)=1; ro(28)=1; ro(30)=1; ro(35)=2; %ro(11)=1;
-    ro=[ro;ro;ro];
-end
-
 if(strcmp(caseName,'case24'))
     ro(1)=2; ro(3:5)=1; ro(10)=2;  ro(15)=1; ro(20)=2; ro(14)=1; ro(17)=1; ro(28)=1; ro(30)=1; ro(35)=2; %ro(11)=1;
 end

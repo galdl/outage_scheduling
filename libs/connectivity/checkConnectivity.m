@@ -3,6 +3,10 @@ function connected = checkConnectivity(mpcase,params)
 run('get_global_constants.m')
 
 branch = mpcase.branch;
+if(strcmp('case96',params.caseName))
+    branch(:,1:2) = params.numerical_branch(:,1:2);
+end
+
 s1=sparse(branch(:,F_BUS),branch(:,T_BUS),branch(:,BR_STATUS),params.nb,params.nb);
 s2=full((s1+s1')>0);
 s2(1:length(s2)+1:end) = 1;
