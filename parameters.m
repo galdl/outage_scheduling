@@ -15,10 +15,15 @@ params.N_CE=15; %15
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=1; %3. currently 1 since there is no difference between them in any case
-params.dynamicSamplesPerDay=3; %5. reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
+params.numOfDaysPerMonth=3; %3. currently 1 since there is no difference between them in any case
+if(strcmp(config.program_name,'optimize'))
+    %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
+    params.dynamicSamplesPerDay=3; %5
+else
+    params.dynamicSamplesPerDay=15; %5
+end
 params.N_plans=150; %75
-params.numOfMonths=8; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
+params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=0; %1
 params.use_NN_UC = true; %true

@@ -169,18 +169,13 @@ if(strcmp(run_mode,'optimize'))
 else
     %% generate solutions for assesment
     
-        N_plans=10;
+        N_plans=19;
         X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
-                mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
+        mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
     %     save('mPlanBatch','mPlanBatch','N_plans');
     
-    %% load mPlanBatch
-%     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
-%     new_plans = [2,3,4,6,7,9:19];
-%     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
 %     load('mPlanBatch');
-
     %% send assessment jobs
     for i_plan=1:N_plans
         [localPlanDir,remotePlanDir] = perparePlanDir(dirs.full_localRun_dir,dirs.full_remoteRun_dir,i_plan,config.PLAN_DIRNAME_PREFIX);

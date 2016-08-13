@@ -9,7 +9,7 @@ if(strcmp(params.caseName,'case24'))
     categories = linspace(2.5,5.5,5);
     extra_categories = linspace(4.75,5.5,4);
     categories = [categories(1:3),extra_categories];
-    monthly_categories_vec = [7,7:-1:1];
+    monthly_categories_vec = [7,7:-1:1,2,4,5,6];
     monthly_categories = categories(monthly_categories_vec); 
 end
 
@@ -17,7 +17,7 @@ if(strcmp(params.caseName,'case96'))
     categories = linspace(2.5,5.5,5);
     extra_categories = linspace(4.75,5.5,6);
     categories = [categories(1:3),extra_categories];
-    monthly_categories_vec = 9:-1:2;
+    monthly_categories_vec = [9:-1:2,3,5,7,9];
     monthly_categories = categories(monthly_categories_vec); 
 end
 
