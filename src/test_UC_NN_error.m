@@ -30,10 +30,14 @@ for j=1:N_test
     uc_sample_orig.line_status = draw_contingencies(params);
     
     %% find K nearest neighbours
-    [NN_uc_sample_vec,NN_uc_sample_rand]= get_uc_NN(final_db,sample_matrix,uc_sample_orig,params);
     tic
+    [NN_uc_sample_vec,NN_uc_sample_rand]= get_uc_NN(final_db,sample_matrix,uc_sample_orig,params);
+    toc
     % compute optimal UC plan for the drawn case
+    
+    tic
     uc_sample_orig = run_UC(params.n1_str , state , uc_sample_orig.demandScenario , uc_sample_orig.windScenario , uc_sample_orig.line_status, params);
+    toc
     uc_samples{j,1} = uc_sample_orig;
     uc_samples{j,2} = NN_uc_sample_vec;
     uc_samples{j,3} = NN_uc_sample_rand;

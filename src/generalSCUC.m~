@@ -264,7 +264,7 @@ if(~(isfield(params,'dropUpDownConstraints') && params.dropUpDownConstraints));
         for t=initialOnOffLength+1:length(onExtended)
             Constraints = [Constraints, onExtended(t)-offExtended(t)==onoffExtended(t+1)-onoffExtended(t)];
             %t+1 and t since in onoffExtended we have an extra initial bit
-            if(~dynamicUC || (dynamicUC && isfield(dynamicUCParams,'enforceOnoff') && ~dynamicUCParams.enforceOnoff))
+            if(dynamicUC && ~dynamicUCParams.enforceOnoff)
                 if(isfield(params,'SU_cost') && params.SU_cost);
                     Constraints = [Constraints, onExtended(t)+offExtended(t)<=1]; %take this line off if no SU cost is wanted
                     Constraints = [Constraints, sum(squeeze(z(unit,t-initialOnOffLength,:)))==onExtended(t)]; %take this line off if no SU cost is wanted

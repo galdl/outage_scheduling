@@ -27,6 +27,11 @@ if(strcmp(caseName,'case24'))
             '/optimize_saved_run'];
     end
 end
+%% case 96
+if(strcmp(caseName,'case96'))
+        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-11-15-14-03--1--case96',...
+            '/optimize_saved_run'];
+end
 %% common initialization to optimize and compare
 epsilon=0.005;
 planSize=[params.nl,params.numOfMonths];
@@ -206,6 +211,6 @@ else
     %% extract their values
     [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load] = ...
         extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
-     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
+     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
     plot_outage_compare
 end

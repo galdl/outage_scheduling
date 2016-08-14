@@ -19,7 +19,7 @@ for t = 1:params.horizon
     try
         updatedMpcase = get_hourly_mpcase( t , uc_sample.onoff , uc_sample.Pg , uc_sample.windSpilled , uc_sample.loadLost, ...
             uc_sample.demandScenario , uc_sample.windScenario , uc_sample.line_status, params , uc_sample.voltage_setpoints );
-        opf_gen = updatedMpcase.gen(:,PG);
+        opf_gen = updatedMpcase
         %% if with no contingency it is not connected - finish
         i_branch=0;
         if((~checkConnectivity(updatedMpcase,params)))
@@ -30,10 +30,6 @@ for t = 1:params.horizon
         %% N-1 criterion - N(=nl) possible single line outage
         for i_branch = 1:cont_list_length
             newMpcase=updatedMpcase;
-            if(opf_updated)
-                newMpcase.gen(:,PG) = opf_gen;
-                opf_updated = 0;
-            end
             newMpcase.branch(i_branch,BR_STATUS)=0;
             if(~checkConnectivity(newMpcase,params))
                 display(['Not Connected for ',num2str(i_branch)]);
@@ -72,9 +68,8 @@ for t = 1:params.horizon
                     end
                     violation = pfConstraintViolation(pfRes,params,AC);
                     opf_updated = 1;
-                    opf_gen = pfRes.gen(:,PG);
                 end
-                pf_violation(i_branch,t)=violation;
+                pf_violation(i_branch,t)=pfConstraintViolation(pfRes,params,AC);
             end
         end
     catch ME

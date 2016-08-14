@@ -1,4 +1,4 @@
-function [modifiedMpcase,redispatch_price]=setCaseParams(caseName,generatorData,generatorTypeVector,generatorBusVector,loads,caseParams)
+function [modifiedMpcase,redisp=setCaseParams(caseName,generatorData,generatorTypeVector,generatorBusVector,loads,caseParams)
 %this function is needed for updateing the test-case to fit Prof. Daniel Kirschen's group in UW. 
 %costs and generation values are updated. Also, there are 32x3 generators
 %both in the original and updated test cases, however in the original one
@@ -8,7 +8,6 @@ function [modifiedMpcase,redispatch_price]=setCaseParams(caseName,generatorData,
 
 %Update: cancelled all of the above and changed the actual case96.m to have
 %96 generators.
-redispatch_price = zeros(length(generatorTypeVector),1);
 if(strcmp(caseName,'case24'))
     caseName='case24_ieee_rts';
 end
@@ -19,7 +18,6 @@ modifiedMpcase.gen=[];
 for g=1:length(generatorTypeVector)
     modifiedMpcase.gencost=[modifiedMpcase.gencost;buildCostRow(generatorData{generatorTypeVector(g)})];
     modifiedMpcase.gen=[modifiedMpcase.gen;generatorBusVector(g) generatorData{generatorTypeVector(g)}.PMAX	0	30	-30	 1	100	1	generatorData{generatorTypeVector(g)}.PMAX	generatorData{generatorTypeVector(g)}.PMIN 	0	0   	0	0	0	0	0	0	0	0	0];
-    redispatch_price(g) = mean(generatorData{generatorTypeVector(g)}.cost.segmentSlopes);
 end
 if(~strcmp(caseName,'case24_ieee_rts')) % for all except case24 - no longer deciding on loads on my own, just rescaling
     loadToGenRatio=0.8; %change 1.2 to 0.8

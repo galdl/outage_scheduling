@@ -1,4 +1,4 @@
-function [totalObjective,finalOnoff,deviationCost,deviationTime,state,escalateLevelVec,allContingenciesHappened,totalWindSpilled,totalLoadLost,success_rate,lostLoad_percentage] = ...
+function [totalObjective,finalOnoff,deviationCost,deviationTime,state,escalateLevelVec,allContingenciesHappened,totalWindSpilled,totalLoadLost,success_rate] = ...
     dynamicMyopicUC(originalPg,originalOnoff,params,state)
 %% initialization
 deviate=0;
@@ -17,7 +17,6 @@ escalateLevelVec=zeros(params.horizon,1);
 totalWindSpilled=0;
 totalLoadLost=0;
 loadLost=0;
-lostLoad_percentage = zeros(params.horizon,1);
 success_rate = 0;
 allContingenciesHappened=zeros(params.nl,1);
 %% while UC haven't deveiated from the original plan, follow original plan.
@@ -58,7 +57,7 @@ for k=1:params.horizon
     finalPg(:,k) = Pg;
     finalWindSpilled(:,k) = windSpilled;
     finalLoadLost(:,k) = loadLost;
-    lostLoad_percentage(k) =  sum(loadLost)/sum((params.demandScenario(:,k) - (params.windScenario(:,k) - windSpilled)));
+    lostLoad_percentage(k) =  sum(loadLost
     totalObjective=totalObjective+objective;
     deviationCost = deviationCost + pgDeviationCost(originalPg(:,k),originalOnoff(:,k),Pg,[],params); 
     state.initialGeneratorState = getInitialGeneratorState_oneStep(onoff,state.initialGeneratorState,params);

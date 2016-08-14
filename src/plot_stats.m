@@ -5,10 +5,10 @@ font_size = 14;
 %% plot KNN stats and decide on label using NN
 
 if(KNN>1)
-    std_max_vec = [0.05,0.1,0.15,0.35,0.45,1];
+    std_max_vec = [0.01,0.02,0.03,0.04,0.05,0.08,0.1,0.15,0.3,0.5];
     xHandles=zeros(length(std_max_vec),1);
     figure(1);
-    for i_std_max = 1:6
+    for i_std_max = 1:length(std_max_vec)
         max_std_thresh = std_max_vec(i_std_max);
         KNN_samples = final_db_test(:,4:4+KNN-1);
         NN_std_full = std(KNN_samples,0,2);
@@ -20,7 +20,7 @@ if(KNN>1)
         
         [v,errb_idx] = sort(NN_mean);
         %     last_non_nan = find((isnan(v)),1)-1;
-        xHandles(i_std_max)=subplot(2,3,i_std_max);
+        xHandles(i_std_max)=subplot(2,5,i_std_max);
         errorbar(NN_mean(errb_idx),NN_std(errb_idx));
         title(['max std: ',num2str(std_max_vec(i_std_max))]);
     end
@@ -47,7 +47,7 @@ hist(reli_diff_rand,50);
 % xHandles2(3) =subplot(2,2,3);
 % N1_diff = final_db_test(idx_low_std,2);
 % hist(N1_diff,50);
-% 
+%
 % xHandles2(4) =subplot(2,2,4);
 % N1_diff_rand = final_db_test(idx_low_std,6);
 % hist(N1_diff_rand,50);
@@ -94,19 +94,19 @@ reliability_NN_rand = KNN_samples_full(:,7+params.KNN);
 %% identify bad samples
 figure(5);
 reli_dist = sqrt((reliability_orig-reliability_NN).^2);
-        hist(reli_dist,50);
+hist(reli_dist,50);
 bad_idx = (reli_dist>0.2);
 scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S,bad_idx);
 
 %% filter according to decreasing std of NN and plot correlation
 figure(6);
-std_max_vec = fliplr([0.001,0.005,0.01,0.03,0.05,0.1,0.15,0.35,0.45,1]);
-N_std = length(std_max_vec);
+flip_std_max_vec = fliplr(std_max_vec);
+N_std = length(flip_std_max_vec);
 corr_vec = zeros(N_std,1);
 samples_left = zeros(N_std,1);
 xHandles3 = zeros(1,N_std);
 for j=1:N_std
-    retain_idx = (NN_std_full<std_max_vec(j));
+    retain_idx = (NN_std_full<flip_std_max_vec(j));
     samples_left(j) = length(find(retain_idx))/length(~isnan(final_db_test(:,1)));
     reliability_orig = final_db_test(retain_idx,3);
     reliability_NN = final_db_test(retain_idx,4);
@@ -115,13 +115,34 @@ for j=1:N_std
     reli_dist = sqrt((reliability_orig-reliability_NN).^2);
     %     hist(reli_dist,50);
     scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S);
-    title(['max std: ',num2str(std_max_vec(j))]);
-    
+    title(['max std: ',num2str(flip_std_max_vec(j))],'FontSize', font_size);
+    set(gca,'fontsize',font_size)
+
     if(~isempty(reliability_orig))
         [r,p]=corr(reliability_orig,reliability_NN);
-         corr_vec(j)=r;
+        corr_vec(j)=r;
     end
+    xlim([0,1]);
+    ylim([0,1]);
 end
+
+figure(66);
+plot_idx = [1,3,5,7,9,10];
+for j=1:length(plot_idx)
+    retain_idx = (NN_std_full<flip_std_max_vec(plot_idx(j)));
+    reliability_orig = final_db_test(retain_idx,3);
+    reliability_NN = final_db_test(retain_idx,4);
+    
+    subplot(2,3,j);
+    scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S);
+    title(['max std: ',num2str(flip_std_max_vec(j))],'FontSize', font_size);
+    set(gca,'fontsize',font_size)
+    xlim([0,1]);
+    ylim([0,1]);
+end
+
+
+
 figure(7);
 subplot(211);
 plot(corr_vec);
@@ -174,6 +195,17 @@ figure(9);
 scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn+Z*randn(size(cost_nn)),S);
 [r,p]=corr(cost_orig,cost_nn)
 
+% high_idx = (cost_orig > 5e6);
+% 
+% cost_orig_partial = cost_orig(high_idx);
+% cost_nn_partial = cost_nn(high_idx);
+% [r,p]=corr(cost_orig_partial,cost_nn_partial)
+% figure(99);
+% 
+% scatter(cost_orig_partial,cost_nn_partial,S);
+
+
+
 % title('cost scatter of exact vs. NN');
 title(['Cost scatter of exact vs. NN. Correlation coefficient: ',num2str(r)],'FontSize', font_size);
 xlabel('Exact UC solution [$]', 'FontSize', font_size)
@@ -192,15 +224,15 @@ title('cost scatter of exact vs. rand NN');
 % [reliability_orig_sorted,idx] = sort(reliability_orig);
 % reliability_diff = final_db_test(idx_low_std,1);
 % reliability_diff_rand = final_db_test(idx_low_std,5);
-% 
+%
 % figure(31);
 % clf;
 % N_filt = 45;
 % plot(reliability_orig_sorted,medfilt1(reliability_diff(idx),N_filt));
 % hold on;
 % plot(reliability_orig_sorted,medfilt1(reliability_diff_rand(idx),N_filt));
-% 
-% 
+%
+%
 % figure(41);
 % clf;
 % b = 1/N_filt*ones(1,N_filt);
@@ -208,18 +240,18 @@ title('cost scatter of exact vs. rand NN');
 % plot(reliability_orig_sorted,filter(b,a,reliability_diff(idx)));
 % hold on;
 % plot(reliability_orig_sorted,filter(b,a,reliability_diff_rand(idx)));
-% 
+%
 % %%
 % N1_diff = final_db_test(idx_low_std,2);
 % N1_diff_rand = final_db_test(idx_low_std,6);
-% 
+%
 % figure(51);
 % clf;
 % N_filt = 45;
 % plot(reliability_orig_sorted,medfilt1(N1_diff(idx),N_filt));
 % hold on;
 % plot(reliability_orig_sorted,medfilt1(N1_diff_rand(idx),N_filt));
-% 
+%
 % figure(61);
 % clf;
 % b = 1/N_filt*ones(1,N_filt);
@@ -227,7 +259,7 @@ title('cost scatter of exact vs. rand NN');
 % plot(reliability_orig_sorted,filter(b,a,N1_diff(idx)));
 % hold on;
 % plot(reliability_orig_sorted,filter(b,a,N1_diff_rand(idx)));
-% 
+%
 % % hold on;
 % plot(reliability_diff_rand(idx));
 % figure(3);

@@ -1,6 +1,6 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=15; %240
+params.N_jobs_NN=25; %240
 %% number of samples for building db in each job
 params.N_samples_bdb = 10; %400
 %% num samples for testing in each job
@@ -15,17 +15,18 @@ params.N_CE=15; %15
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=3; %3. currently 1 since there is no difference between them in any case
+params.numOfDaysPerMonth=2; %3. currently 1 since there is no difference between them in any case
 if(strcmp(config.program_name,'optimize'))
     %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
     params.dynamicSamplesPerDay=3; %5
 else
-    params.dynamicSamplesPerDay=15; %5
+    params.dynamicSamplesPerDay=3; %5
 end
 params.N_plans=150; %75
 params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
 params.myopicUCForecast=1;
 params.dropUpDownConstraints=0; %1
+params.SU_cost = 1;
 params.use_NN_UC = true; %true
 %if false - success rate will be simply the rate of success
 %if true - success rate will be computed as the portion of N-1 list that is
@@ -45,7 +46,8 @@ if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','cas
     
     
     generatorData=getGeneratorData();
-    mpcase=setCaseParams(caseName,generatorData,generatorTypeVector,generatorBusVector,loads,caseParams);
+    [mpcase,redispatch_price]=setCaseParams(caseName,generatorData,generatorTypeVector,generatorBusVector,loads,caseParams);
+    params.redispatch_price = redispatch_price;
     
     if(strcmp('case96',params.caseName))
         params.numerical_branch = modify_to_numerical_branch(mpcase.branch);

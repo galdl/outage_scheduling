@@ -21,7 +21,7 @@ for i_plan=1:N_plans
         numOfExistingMonths = sum(out_idx);
         %      [~,numLinesStr]=   unix(['ls ',(lsPath),' | wc -l']);
         numOfMonthsPerPlan(i_plan)=numOfExistingMonths;
-        if(numOfMonthsPerPlan(i_plan)<round(0.9*params.numOfMonths)) %if not almost all months finished, dont use that data
+        if(numOfMonthsPerPlan(i_plan)<round(0.75*params.numOfMonths)) %if not almost all months finished, dont use that data
             planValues(i_plan)=nan;
             lostLoad(i_plan)=nan;
         else
@@ -37,7 +37,10 @@ for i_plan=1:N_plans
                 contingenciesHappened=[];
                 monthFilename = monthFileList{i_matFile};
                 monthlyStatsStruct=load([monthsFolder.path,'/',monthFilename]);
-                parsedMonthNum = str2num(monthFilename(end-length('.mat')));
+                parsedMonthNum = str2num(monthFilename(end-length('.mat')-1:end-length('.mat')));  %for double-digit months
+                if(isempty(parsedMonthNum))
+                    parsedMonthNum = str2num(monthFilename(end-length('.mat'))); %for single-digit months
+                end
                 
                 monthlyStats=monthlyStatsStruct.monthlyStats; %dont ask...
                 for day = 1:length(monthlyStats)
