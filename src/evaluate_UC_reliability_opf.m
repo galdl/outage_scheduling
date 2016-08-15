@@ -1,4 +1,4 @@
-function [reliability,n1_matrix,connected] = evaluate_UC_reliability(uc_sample,params)
+function [reliability,n1_matrix,connected] = evaluate_UC_reliability_opf(uc_sample,params)
 %% initialize
 run('get_global_constants.m')
 mpopt = mpoption('out.all', 0,'verbose', 0,'pf.alg','NR'); %NR(def), FDXB, FDBX, GS
@@ -19,7 +19,7 @@ for t = 1:params.horizon
     try
         updatedMpcase = get_hourly_mpcase( t , uc_sample.onoff , uc_sample.Pg , uc_sample.windSpilled , uc_sample.loadLost, ...
             uc_sample.demandScenario , uc_sample.windScenario , uc_sample.line_status, params , uc_sample.voltage_setpoints );
-        opf_gen = updatedMpcase
+        opf_gen = updatedMpcase.gen(:,PG);
         %% if with no contingency it is not connected - finish
         i_branch=0;
         if((~checkConnectivity(updatedMpcase,params)))
@@ -30,6 +30,10 @@ for t = 1:params.horizon
         %% N-1 criterion - N(=nl) possible single line outage
         for i_branch = 1:cont_list_length
             newMpcase=updatedMpcase;
+            if(opf_updated)
+                newMpcase.gen(:,PG) = opf_gen;
+                opf_updated = 0;
+            end
             newMpcase.branch(i_branch,BR_STATUS)=0;
             if(~checkConnectivity(newMpcase,params))
                 display(['Not Connected for ',num2str(i_branch)]);
@@ -68,8 +72,9 @@ for t = 1:params.horizon
                     end
                     violation = pfConstraintViolation(pfRes,params,AC);
                     opf_updated = 1;
+                    opf_gen = pfRes.gen(:,PG);
                 end
-                pf_violation(i_branch,t)=pfConstraintViolation(pfRes,params,AC);
+                pf_violation(i_branch,t)=violation;
             end
         end
     catch ME

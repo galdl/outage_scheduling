@@ -1,5 +1,5 @@
 function [final_db_test,finished_idx,uc_samples] = ...
-    extract_data_test(fullLocalParentDir,N_jobs,JOB_DIRNAME_PREFIX,job_output_filename,params)
+    extract_data_test(fullLocalParentDir,JOB_DIRNAME_PREFIX,job_output_filename,params)
 
 
 finished_idx = [];
@@ -8,8 +8,13 @@ if(params.db_rand_mode)
 else vec_size = 3+params.KNN;
 end
 
+[~,n_str] = unix(['ls ',fullLocalParentDir,' |grep ',JOB_DIRNAME_PREFIX,'|wc -l']);
+N_jobs = str2num(n_str);
+
 final_db_test = nan(N_jobs*params.N_samples_test,vec_size);
 uc_samples = cell(N_jobs*params.N_samples_test,3);
+
+
 for i_job=1:N_jobs
     %     try
     lsPath=[fullLocalParentDir,'/',JOB_DIRNAME_PREFIX,num2str(i_job)];

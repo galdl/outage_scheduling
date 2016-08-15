@@ -1,11 +1,16 @@
 function [final_db,sample_matrix,finished_idx] = ...
-    extract_data(fullLocalParentDir,N_jobs,JOB_DIRNAME_PREFIX,job_output_filename,params)
+    extract_data(fullLocalParentDir,JOB_DIRNAME_PREFIX,job_output_filename,params)
 
+
+[~,n_str] = unix(['ls ',fullLocalParentDir,' |grep ',JOB_DIRNAME_PREFIX,'|wc -l']);    
+        N_jobs = str2num(n_str);
 
 finished_idx = [];
 sample_matrix=nan(calculate_sample_matrix_size(params,N_jobs));
 final_db = cell(size(sample_matrix,2),1);
 
+
+        
 for i_job=1:N_jobs
     try
         lsPath=[fullLocalParentDir,'/',JOB_DIRNAME_PREFIX,num2str(i_job)];

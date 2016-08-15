@@ -15,16 +15,16 @@ params.N_CE=15; %15
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=3; %3. currently 1 since there is no difference between them in any case
+params.numOfDaysPerMonth=1; %3. currently 1 since there is no difference between them in any case
 if(strcmp(config.program_name,'optimize'))
     %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
-    params.dynamicSamplesPerDay=3; %5
+    params.dynamicSamplesPerDay=3; %3
 else
-    params.dynamicSamplesPerDay=5; %5
+    params.dynamicSamplesPerDay=3; %5
 end
 params.N_plans=150; %75
 params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
-params.myopicUCForecast=1;
+params.myopicUCForecast=0;
 params.dropUpDownConstraints=0; %1
 params.SU_cost = 1;
 params.use_NN_UC = true; %true
@@ -33,6 +33,12 @@ params.use_NN_UC = true; %true
 %recoverable, averaged over the 24-hours (increases complexity by a factor
 %of params.nl, per each day of simulation)
 params.n1_success_rate = true;
+if(strcmp('case96',params.caseName))
+    params.reliability_percentageTolerance = 200;
+end
+if(strcmp('case24',params.caseName))
+    params.reliability_percentageTolerance = 50;
+end
 %% seperate the edited cases (which include dynamic parameters for UC,
 %% s.a min up/down times, initial state, etc.) and the non-edited, classic matpower cases
 if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','case96'}))>0)

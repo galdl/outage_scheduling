@@ -15,10 +15,10 @@ params.N_CE=15; %15
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=2; %3. currently 1 since there is no difference between them in any case
+params.numOfDaysPerMonth=1; %3. currently 1 since there is no difference between them in any case
 if(strcmp(config.program_name,'optimize'))
     %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
-    params.dynamicSamplesPerDay=3; %5
+    params.dynamicSamplesPerDay=3; %3
 else
     params.dynamicSamplesPerDay=3; %5
 end
@@ -33,6 +33,12 @@ params.use_NN_UC = true; %true
 %recoverable, averaged over the 24-hours (increases complexity by a factor
 %of params.nl, per each day of simulation)
 params.n1_success_rate = true;
+if(strcmp('case96',params.caseName))
+    params.reliability_percentageTolerance = 200;
+end
+if(strcmp('case24',params.caseName))
+    params.reliability_percentageTolerance = 50;
+end
 %% seperate the edited cases (which include dynamic parameters for UC,
 %% s.a min up/down times, initial state, etc.) and the non-edited, classic matpower cases
 if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','case96'}))>0)
@@ -87,17 +93,21 @@ params.nl   = size(mpcase.branch, 1); %% number of branches
 params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
 %% set up requested outages
 ro = zeros(params.nl,1);
-if(strcmp(config.program_name,'optimize'))
 
-end
 if(strcmp(caseName,'case96'))
     ro = zeros(40,1); %number of lines in each area
     ro(1)=2; ro(3:5)=1; ro(10)=2;  ro(15)=1; ro(20)=2; ro(14)=1; ro(17)=1; ro(28)=1; ro(30)=1; ro(35)=2; %ro(11)=1;
+    if(strcmp(config.program_name,'compare')) %add some
+        ro(11)=2; ro(16) =2; ro(25)=2;
+    end
     ro=[ro;ro;ro];
 end
 
 if(strcmp(caseName,'case24'))
     ro(1)=2; ro(3:5)=1; ro(10)=2;  ro(15)=1; ro(20)=2; ro(14)=1; ro(17)=1; ro(28)=1; ro(30)=1; ro(35)=2; %ro(11)=1;
+    if(strcmp(config.program_name,'compare')) %add some
+        ro(11)=2; ro(16) =2; ro(25)=2;
+    end
 end
 if(strcmp(caseName,'case5'))
     ro(1)=2; ro(3)=1; ro(6)=1;

@@ -18,8 +18,10 @@ if(strcmp(params.caseName,'case24'))
 end
 
 if(strcmp(params.caseName,'case96'))
-    categories = linspace(2.5,5.5,5);
-    extra_categories = linspace(4.75,5.5,6);
+%     categories = linspace(2.5,5.5,5);
+    categories = linspace(3.5,4.5,5);
+
+    extra_categories = linspace(4.25,4.5,6);
     categories = [categories(1:3),extra_categories];
     monthly_categories_vec = [9:-1:2,3,5,7,9];
     monthly_categories = categories(monthly_categories_vec);

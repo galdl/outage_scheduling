@@ -13,13 +13,11 @@ pg_prec_violation = zeros(sz);
 n1_matrix = zeros(sz);
 connected=1;
 AC = 1;
-opf_updated = 0;
 %% iterate on all hours of the day
 for t = 1:params.horizon
     try
         updatedMpcase = get_hourly_mpcase( t , uc_sample.onoff , uc_sample.Pg , uc_sample.windSpilled , uc_sample.loadLost, ...
             uc_sample.demandScenario , uc_sample.windScenario , uc_sample.line_status, params , uc_sample.voltage_setpoints );
-        opf_gen = updatedMpcase.gen(:,PG);
         %% if with no contingency it is not connected - finish
         i_branch=0;
         if((~checkConnectivity(updatedMpcase,params)))
@@ -30,10 +28,6 @@ for t = 1:params.horizon
         %% N-1 criterion - N(=nl) possible single line outage
         for i_branch = 1:cont_list_length
             newMpcase=updatedMpcase;
-            if(opf_updated)
-                newMpcase.gen(:,PG) = opf_gen;
-                opf_updated = 0;
-            end
             newMpcase.branch(i_branch,BR_STATUS)=0;
             if(~checkConnectivity(newMpcase,params))
                 display(['Not Connected for ',num2str(i_branch)]);
@@ -58,23 +52,7 @@ for t = 1:params.horizon
             if(pfRes.success)
                 idx=find(uc_sample.onoff(:,t));
                 pg_prec_violation(i_branch,t)=sum(abs(pfRes.gen(idx,PG)-newMpcase.gen(idx,PG)))/sum(newMpcase.gen(idx,PG));
-                violation = pfConstraintViolation(pfRes,params,AC);
-                if(violation)
-                    try
-                        pfRes=runopf(newMpcase,mpopt); %when chaning, also change mpopt and AC variables
-                    catch  ME
-                        warning(['Problem using runOPF for t = ' num2str(t),' i_branch = ',num2str(i_branch)]);
-                        msgString = getReport(ME);
-                        display(msgString);
-                        pfRes.success=0;
-                        pf_violation(i_branch,t) = 1;
-                        pf_success(i_branch,t) = 0;
-                    end
-                    violation = pfConstraintViolation(pfRes,params,AC);
-                    opf_updated = 1;
-                    opf_gen = pfRes.gen(:,PG);
-                end
-                pf_violation(i_branch,t)=violation;
+                pf_violation(i_branch,t)=pfConstraintViolation(pfRes,params,AC);
             end
         end
     catch ME
@@ -94,7 +72,7 @@ end
 %consider using matpower bult-in function:
 %function [Fv, Pv, Qv, Vv] = checklimits(mpc, ac, quiet)
 function violation = pfConstraintViolation(pfRes,params,AC)
-percentageTolerance=50; %how much of a percentage violation do we tolerate
+percentageTolerance=params.reliability_percentageTolerance; %how much of a percentage violation do we tolerate
 [Fv, Pv] = checklimits(pfRes, AC, 1);
 violation=1-(isempty(Fv.p) || max(Fv.p) <= percentageTolerance)*...
     (isempty(Pv.p) || max(Pv.p) <= percentageTolerance)*...

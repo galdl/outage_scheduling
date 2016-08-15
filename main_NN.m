@@ -3,8 +3,8 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'uc_nn'; %'outage_scheduling','uc_nn'
-run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 3;
+run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+prefix_num = 4;
 caseName = 'case96'; %case5,case9,case14,case24,case96
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
@@ -31,7 +31,8 @@ max_concurrent_jobs = params.N_jobs_NN;
 i_job = 1;
 save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 %%
-while(true)
+max_iterations = 1000;
+while(i_job<max_iterations)
     if(get_current_running_jobs(jobArgs) < N_jobs_NN)
         prepare_and_send_job(i_job,dirs,program_matlab_name,db_file_path,jobArgs,params,config);
         i_job = i_job+1;
@@ -62,7 +63,7 @@ deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
 if(strcmp(config.run_mode,'optimize'))
     %% extract and build database
     tic
-    [final_db,sample_matrix,finished_idx] = extract_data(dirs.full_localRun_dir,i_job,dirs.job_dirname_prefix,dirs.job_output_filename,params);
+    [final_db,sample_matrix,finished_idx] = extract_data(dirs.full_localRun_dir,dirs.job_dirname_prefix,dirs.job_output_filename,params);
     toc
     [split_data_loc,num_data_chunks] = split_and_save_data(final_db,sample_matrix,dirs.full_localRun_dir,config.SPLIT_DIR);
     % saves all but the variables in the regex
@@ -75,7 +76,7 @@ else
     KNN=params.KNN;
     %%
     tic
-    [final_db_test,finished_idx,uc_samples] = extract_data_test(dirs.full_localRun_dir,i_job,config.JOB_DIRNAME_PREFIX,dirs.job_output_filename,params);
+    [final_db_test,finished_idx,uc_samples] = extract_data_test(dirs.full_localRun_dir,config.JOB_DIRNAME_PREFIX,dirs.job_output_filename,params);
     toc
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
     %%

@@ -1,8 +1,0 @@
-function price = pgDeviationCost(originalPg,originalOnoff,y,gencost)
-
-%notice that totcost returns (positive even if zeros?)
-% y are epigraph values, so this line doesn't really work.
-% price=sum(abs((originalOnoff).*totcost(gencost,originalPg)-y));
-%this is because y is chosen to be higher and equal to the totcost and we
-%get a difference of 0, which is not correct.
-price=sum(abs((originalOnoff).*totcost(gencost,originalPg)-y));
