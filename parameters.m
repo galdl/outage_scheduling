@@ -27,14 +27,14 @@ params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenari
 params.myopicUCForecast=0;
 params.dropUpDownConstraints=0; %1
 params.SU_cost = 1;
-params.use_NN_UC = true; %true
+params.use_NN_UC = false; %true
 %if false - success rate will be simply the rate of success
 %if true - success rate will be computed as the portion of N-1 list that is
 %recoverable, averaged over the 24-hours (increases complexity by a factor
 %of params.nl, per each day of simulation)
-params.n1_success_rate = true;
+params.n1_success_rate = false;
 if(strcmp('case96',params.caseName))
-    params.reliability_percentageTolerance = 200;
+    params.reliability_percentageTolerance = 100;
 end
 if(strcmp('case24',params.caseName))
     params.reliability_percentageTolerance = 50;
@@ -125,7 +125,12 @@ params.alpha = 0.05; % success_rate chance-constraint parameter : P['bad event']
 params.demandStd = 0.05; %0.05
 params.muStdRatio = 0.15;
 params.rand_walk_w_std = 0.015; %0.03
-params.rand_walk_d_std = 0.005; %0.01
+params.rand_walk_d_std = 0.001; %0.01
+%% DEBUG! TODO: remove
+params.demandStd = 1e-9; 
+params.muStdRatio = 1e-9;
+params.rand_walk_w_std = 1e-9; %%TODO: remove
+params.rand_walk_d_std = 1e-9; 
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost

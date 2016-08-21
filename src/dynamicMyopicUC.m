@@ -20,6 +20,8 @@ loadLost=0;
 lostLoad_percentage = zeros(params.horizon,1);
 success_rate = 0;
 allContingenciesHappened=zeros(params.nl,1);
+db1 = [];%TODO: remove
+db2 = [];
 %% while UC haven't deveiated from the original plan, follow original plan.
 %% if it has deviated, remove originalOnoff constraint
 for k=1:params.horizon
@@ -29,6 +31,7 @@ for k=1:params.horizon
     %% first try to follow commitment plan
     if(~deviate)
         [state,contingenciesHappened] = updateState(params,state); %possible take stress levels as input
+%         state.topology.lineStatus = ones(size(state.topology.lineStatus));
         [Pg,objective,onoff,y,~,success,windSpilled,loadLost] = generalSCUC('not-n1',paramsCopy,state,dynamicUCParams);
         %% if couldn't follow original commitment - remove this constraint for all remaining hours
         if (~success) % indication of infeasibility - this block runs at most once. don't advance time here since it was already done
@@ -60,6 +63,8 @@ for k=1:params.horizon
     finalLoadLost(:,k) = loadLost;
     lostLoad_percentage(k) =  sum(loadLost)/sum((params.demandScenario(:,k) - (params.windScenario(:,k) - windSpilled)));
     totalObjective=totalObjective+objective;
+    db1=[db1,objective]; %TODO: remove
+    db2=[db2,pgDeviationCost(originalPg(:,k),originalOnoff(:,k),Pg,[],params)];
     deviationCost = deviationCost + pgDeviationCost(originalPg(:,k),originalOnoff(:,k),Pg,[],params); 
     state.initialGeneratorState = getInitialGeneratorState_oneStep(onoff,state.initialGeneratorState,params);
 end

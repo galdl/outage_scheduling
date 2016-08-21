@@ -4,8 +4,8 @@ set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
 run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 2;
-caseName = 'case96'; %case5,case9,case14,case24
+prefix_num = 3;
+caseName = 'case24'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program
@@ -72,12 +72,15 @@ if(strcmp(run_mode,'optimize'))
             previousIterationsJobs=0;
             for i_CE_inner=1:N_CE_inner
                 innerPlanRange=(i_CE_inner-1)*maxConcurrentPlans+1:min(i_CE_inner*maxConcurrentPlans,N_plans);
+                params_with_DA_scenarios = cell(params.numOfMonths,1);
                 for i_plan=innerPlanRange
                     [localPlanDir,remotePlanDir]=...
                         perparePlanDir(localIterDir,remoteIterDir,i_plan,config.PLAN_DIRNAME_PREFIX);
                     for i_month=1:params.numOfMonths
-                        params_with_DA_scenarios = generate_shared_DA_scenarios(params,i_month);
-                        [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios,config);
+                        if(i_plan == 1) % generate only once, for the scenarios to be shared across plans
+                            params_with_DA_scenarios{i_month} = generate_shared_DA_scenarios(params,i_month);
+                        end
+                        [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios{i_month},config);
                         [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,i_CE,remotePlanDir,jobArgs,argContentFilename);
                         sendJob('simulateMonth_job',funcArgs,jobArgs,config);
                     end
@@ -187,11 +190,14 @@ else
 %     load('mPlanBatch');
 
     %% send assessment jobs
+    params_with_DA_scenarios = cell(params.numOfMonths,1);
     for i_plan=1:N_plans
         [localPlanDir,remotePlanDir] = perparePlanDir(dirs.full_localRun_dir,dirs.full_remoteRun_dir,i_plan,config.PLAN_DIRNAME_PREFIX);
         for i_month=1:params.numOfMonths
-            params_with_DA_scenarios = generate_shared_DA_scenarios(params,i_month);
-            [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios,config);
+            if(i_plan == 1) % generate only once, for the scenarios to be shared across plans
+                params_with_DA_scenarios{i_month} = generate_shared_DA_scenarios(params,i_month);
+            end
+            [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios{i_month},config);
             [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,1,remotePlanDir,jobArgs,argContentFilename);
             sendJob('simulateMonth_job',funcArgs,jobArgs,config);
         end

@@ -1,6 +1,6 @@
 % close all;
 KNN = params.KNN;
-font_size = 14;
+font_size = 20;
 % KNN = 2;
 %% plot KNN stats and decide on label using NN
 
@@ -140,8 +140,32 @@ for j=1:length(plot_idx)
     xlim([0,1]);
     ylim([0,1]);
 end
+%% plot heat map of correlation and std 
+figure(77);
+font_size=20;
+retain_idx_no_nan = ~isnan(NN_std_full);
+NN_std_no_nan = NN_std_full(retain_idx_no_nan);
+    reliability_orig = final_db_test(retain_idx_no_nan,3);
+    reliability_NN = final_db_test(retain_idx_no_nan,4);
+%     x = [reliability_orig,reliability_NN];
+%     y= [NN_std_no_nan,NN_std_no_nan];
+    scatter(reliability_orig,reliability_NN,[],NN_std_no_nan,'filled');
+    h = colorbar;
+ylabel(h, 'standard deviation','FontSize', font_size);
+    caxis([0,0.4])
+    colormap jet
+    title(sprintf('Daily Reliability scatter of exact vs. NN,\ncolored according to confidence level'));
+% ['Daily Reliability scatter of exact vs. NN,\n colored according to confidence level '],'FontSize', font_size);
+xlabel('Exact UC solution reliability', 'FontSize', font_size)
+ylabel('NN UC solution cost reliability', 'FontSize', font_size)
+set(gca,'fontsize',font_size);
 
-
+%      scatterheat(x,y,'colorbar',1);
+% 
+%     set(gca,'fontsize',font_size)
+%     xlim([0,1]);
+%     ylim([0,1]);
+    %%
 
 figure(7);
 subplot(211);

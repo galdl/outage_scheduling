@@ -43,7 +43,9 @@ for i_sample = 1:params.dynamicSamplesPerDay
     try
         
         %% draw RT wind and demand and run step-by-step DCOPFs for costs and reliability assesment
-        [windScenario_RT,demandScenario_RT] = generate_RT_wind_demand(windScenario_DA,demandScenario_DA,params);
+%         if(i_sample==1) %TODO: remove
+            [windScenario_RT,demandScenario_RT] = generate_RT_wind_demand(windScenario_DA,demandScenario_DA,params);
+%         end
         params.windScenario = windScenario_RT;
         params.demandScenario = demandScenario_RT;
         originalPg = uc_sample_out.Pg;
