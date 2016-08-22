@@ -13,6 +13,7 @@ dailyStats.success_rate=[];
 dailyStats.relative_nn_std=[];
 dailyStats.lostLoad_percentage=[];
 
+relative_nn_std=[];
 
 %% First part - generate day-ahead UC forecast
 % in the future - change wind profile according to date
@@ -80,7 +81,7 @@ end
 dailyStats.originalObjective=uc_sample_out.objective;
 % dailyStats.originalEscalateLevel=originalEscalateLevel; obsolete
 dailyStats.originalWindSpilled=uc_sample_out.windSpilled;
-% dailyStats.originalLoadLost=originalLoadLost*params.horizon; %in the original plan - load shedding is done for the whole day
+dailyStats.originalLoadLost=sum(sum(uc_sample_out.loadLost)); %in the original plan - load shedding is done for the whole day
 %         to be used in the future
 
 

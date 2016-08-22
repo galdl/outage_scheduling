@@ -60,9 +60,9 @@ for i_plan = 1:N_plans
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
 %     set(gcf,'name','Compare lost loads - no outages and outage plan 1','numbertitle','off')
-    plotFill(monthlyCost_DA(1,:,1),monthlyCost_DA(1,:,2),'r',opacity);
+    plotFill(monthly_lost_load(1,:,1),monthly_lost_load(1,:,2),'r',opacity);
     hold on;
-    plotFill(monthlyCost_DA(i_plan,:,1),monthlyCost_DA(i_plan,:,2),'b',opacity);
+    plotFill(monthly_lost_load(i_plan,:,1),monthly_lost_load(i_plan,:,2),'b',opacity);
     hold off;
     %     legend({'No outages - std','No outages - mean','Outage plan 1 - std','Outage plan 1 - mean'});
     set(gca,'fontsize',20);
@@ -70,19 +70,19 @@ for i_plan = 1:N_plans
     xlabel('Month', 'FontSize', fontSize)
     ylabel('DA Cost', 'FontSize', fontSize)
      %% lost load - DA
-    i_row = 5;
+    i_row = 3;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
 %     set(gcf,'name','Compare lost loads - no outages and outage plan 1','numbertitle','off')
-    plotFill(monthly_lost_load_DA(1,:,1),monthly_lost_load_DA(1,:,2),'r',opacity);
+    plotFill(monthly_lost_load(1,:,1),monthly_lost_load(1,:,2),'r',opacity);
     hold on;
-    plotFill(monthly_lost_load_DA(i_plan,:,1),monthly_lost_load_DA(i_plan,:,2),'b',opacity);
+    plotFill(monthly_lost_load(i_plan,:,1),monthly_lost_load(i_plan,:,2),'b',opacity);
     hold off;
     %     legend({'No outages - std','No outages - mean','Outage plan 1 - std','Outage plan 1 - mean'});
     set(gca,'fontsize',20);
 %     title('Monthly lost load comparison','FontSize', 17);
     xlabel('Month', 'FontSize', fontSize)
-    ylabel('DA Lost load', 'FontSize', fontSize)
+    ylabel('Lost load', 'FontSize', fontSize)
 end
 %% show comparison between no-outage to a single (or two) plans
 figure;

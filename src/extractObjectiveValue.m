@@ -1,10 +1,12 @@
-function [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load]...
+function [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA]...
     = extractObjectiveValue(iterationDir,N_plans,params,config)
 planValues = zeros(N_plans,1);
 success_rate_values = zeros(N_plans,1);
 monthly_success_rate_values = zeros(N_plans,params.numOfMonths,2);
 monthly_lost_load = zeros(N_plans,params.numOfMonths,2);
 
+monthly_lost_load_DA = zeros(N_plans,params.numOfMonths,2);
+monthlyCost_DA = nan(N_plans,params.numOfMonths,2); %average cost per month, per plan. third dimension: mean and std
 relative_nn_std_values = cell(N_plans,1);
 
 planValuesVec=nan(N_plans,params.numOfMonths,params.dynamicSamplesPerDay);
@@ -32,6 +34,7 @@ for i_plan=1:N_plans
                 dynamicObjective=[];
                 success_rate = [];
                 originalObjective = [];
+                originalLoadLost=[];
                 dynamicLoadLost=[];
                 
                 contingenciesHappened=[];
@@ -53,6 +56,8 @@ for i_plan=1:N_plans
                     %pre-realization estimated cost of the day, based on the UC
                     originalObjective=[originalObjective,monthlyStats{day}.originalObjective];
                     dynamicLoadLost=[dynamicLoadLost,monthlyStats{day}.dynamicLoadLost];
+                    originalLoadLost=[originalLoadLost,monthlyStats{day}.originalLoadLost];
+
                     relative_nn_std_per_plan=[relative_nn_std_per_plan,monthlyStats{day}.relative_nn_std];
                     contingenciesHappened=[contingenciesHappened,monthlyStats{day}.contingenciesHappened];
                     if(day==1) %save all first day objective values for std analysis
@@ -69,12 +74,18 @@ for i_plan=1:N_plans
                 monthlyCost(i_plan,parsedMonthNum,1) = mean(dynamicObjective - dynamicLoadLost*params.VOLL);
                 monthlyCost(i_plan,parsedMonthNum,2) = std(dynamicObjective - dynamicLoadLost*params.VOLL);
                 
+                monthlyCost_DA(i_plan,parsedMonthNum,1) = mean(originalObjective - originalLoadLost*params.VOLL);
+                monthlyCost_DA(i_plan,parsedMonthNum,2) = std(originalObjective - originalLoadLost*params.VOLL);
+
+                                
                 monthly_success_rate_values(i_plan,parsedMonthNum,1) = mean(success_rate);
                 monthly_success_rate_values(i_plan,parsedMonthNum,2) = std(success_rate);
                 
                 monthly_lost_load(i_plan,parsedMonthNum,1) = mean(dynamicLoadLost);
                 monthly_lost_load(i_plan,parsedMonthNum,2) = std(dynamicLoadLost);
                 
+                monthly_lost_load_DA(i_plan,parsedMonthNum,1) = mean(originalLoadLost);
+                monthly_lost_load_DA(i_plan,parsedMonthNum,2) = std(originalLoadLost);                
                 
                 success_rate_values(i_plan) = success_rate_values(i_plan) + mean(success_rate);
                 %             inspect_success_rate

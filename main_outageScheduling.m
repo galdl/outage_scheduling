@@ -215,7 +215,7 @@ else
     display([num2str(timeOutCounter),' seconds passed. ','Num of finished files: ',num2str(numFinishedFiles)]);
     deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
     %% extract their values
-    [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load] = ...
+    [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA] = ...
         extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
      save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
     plot_outage_compare

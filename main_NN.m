@@ -3,9 +3,9 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'uc_nn'; %'outage_scheduling','uc_nn'
-run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 4;
-caseName = 'case96'; %case5,case9,case14,case24,case96
+caseName = 'case24'; %case5,case9,case14,case24,case96
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Load UC_NN database path
@@ -21,7 +21,7 @@ end
 [jobArgs,params,dirs,config] = ...
     initialize_program(relativePath,prefix_num,caseName,program_name,run_mode);
 %% meta-optimizer iterations
-pauseDuration=60; %seconds
+pauseDuration=30; %seconds
 timeOutLimit=60*60*48;
 %% start by killing all current jobs
 killRemainingJobs(jobArgs);
@@ -57,7 +57,7 @@ end
 % end
 % save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 %% after enough jobs finished - destroy remaining
-display([num2str(timeOutCounter),' seconds passed. ','Num of finished files: ',num2str(numFinishedFiles)]);
+% display([num2str(timeOutCounter),' seconds passed. ','Num of finished files: ',num2str(numFinishedFiles)]);
 killRemainingJobs(jobArgs);
 deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
 if(strcmp(config.run_mode,'optimize'))

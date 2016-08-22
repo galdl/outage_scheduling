@@ -2,7 +2,7 @@
 %% UC_NN simulation parameters
 params.N_jobs_NN=25; %240
 %% number of samples for building db in each job
-params.N_samples_bdb = 10; %400
+params.N_samples_bdb = 2; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);%1
 
@@ -20,7 +20,7 @@ if(strcmp(config.program_name,'optimize'))
     %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
     params.dynamicSamplesPerDay=3; %3
 else
-    params.dynamicSamplesPerDay=3; %5
+    params.dynamicSamplesPerDay=2; %5
 end
 params.N_plans=150; %75
 params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
@@ -34,7 +34,7 @@ params.use_NN_UC = false; %true
 %of params.nl, per each day of simulation)
 params.n1_success_rate = false;
 if(strcmp('case96',params.caseName))
-    params.reliability_percentageTolerance = 100;
+    params.reliability_percentageTolerance = 50;
 end
 if(strcmp('case24',params.caseName))
     params.reliability_percentageTolerance = 50;
@@ -130,7 +130,7 @@ params.rand_walk_d_std = 0.001; %0.01
 params.demandStd = 1e-9; 
 params.muStdRatio = 1e-9;
 params.rand_walk_w_std = 1e-9; %%TODO: remove
-params.rand_walk_d_std = 1e-9; 
+params.rand_walk_d_std = 0.001; 
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost
@@ -151,7 +151,7 @@ params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verb
 %% db random NN mode
 params.db_rand_mode = true;
 %% choose whether to run in n-1 mode
-params.n1_str = 'not-n1'; %'n1'
+params.n1_str = 'n1'; %'n1,not-n1'
 %% contingency prob per line
 if(strcmp('case96',params.caseName))
     params.failure_probability = 0.08;
