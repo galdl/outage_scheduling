@@ -1,6 +1,8 @@
 function state=getInitialState(params)
+get_global_constants
 %% Contingency data structure
 state.topology.lineStatus=ones(params.nl,1); %saves the status of each branch
+state.topology.lineStatus(params.mpcase.branch(:,BR_STATUS)==0) = 0 ;
 state.topology.lastChange=zeros(params.nl,1); %last time stamp where the asset had been fixed (reset)
 
 

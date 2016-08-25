@@ -1,6 +1,6 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=25; %240
+params.N_jobs_NN=200; %240
 %% number of samples for building db in each job
 params.N_samples_bdb = 2; %400
 %% num samples for testing in each job
@@ -15,12 +15,12 @@ params.N_CE=15; %15
 % in case24, 4 months, 75 plans, params.numOfDaysPerMonth=2;
 % params.dynamicSamplesPerDay=15; - in 7 hours timeout, 100 of 300 plans
 % finished
-params.numOfDaysPerMonth=1; %3. currently 1 since there is no difference between them in any case
+params.numOfDaysPerMonth=3; %3. currently 1 since there is no difference between them in any case
 if(strcmp(config.program_name,'optimize'))
     %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
     params.dynamicSamplesPerDay=3; %3
-else
-    params.dynamicSamplesPerDay=2; %5
+else %compare mode
+    params.dynamicSamplesPerDay=3; %5
 end
 params.N_plans=150; %75
 params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
@@ -46,6 +46,8 @@ if(sum(strcmp(caseName,{'case5','case9','case14','case24','case24_ieee_rts','cas
     caseParams=getSpecificCaseParams(caseName,'matpower_cases/ieee_RTS96_UW');
     generatorTypeVector=caseParams.generatorTypeVector;
     generatorBusVector=caseParams.generatorBusVector;
+    
+    caseParams.initialGeneratorState = flex_initial_generator_state(caseParams.initialGeneratorState);
     params.initialGeneratorState=caseParams.initialGeneratorState;
     loads=caseParams.loads;
     params.windScaleRatio=caseParams.windScaleRatio; %%wind generation mean will be devided by this factor
@@ -104,9 +106,20 @@ if(strcmp(caseName,'case96'))
 end
 
 if(strcmp(caseName,'case24'))
-    ro(1)=2; ro(3:5)=1; ro(10)=2;  ro(15)=1; ro(20)=2; ro(14)=1; ro(17)=1; ro(28)=1; ro(30)=1; ro(35)=2; %ro(11)=1;
+    %% some changes to make things interesting
+    params.mpcase.branch(1,BR_STATUS)=0;
+    params.mpcase.bus(3,PD)=params.mpcase.bus(1,PD)+params.mpcase.bus(3,PD);
+    params.mpcase.bus(1,PD)=0;
+    params.mpcase.bus(4,PD)=params.mpcase.bus(2,PD)+params.mpcase.bus(4,PD);
+    params.mpcase.bus(2,PD)=0;
+    
+    ro(2:5)=2; ro(10)=2;   ro(11)=1; ro(25)=2;    ro(26)=2; r(31)=2; r(38)=2;
+    
+    params.mpcase.branch(1,RATE_A)=1e-9;
+    params.mpcase.branch([24;27],RATE_A)=250;
+    
     if(strcmp(config.program_name,'compare')) %add some
-        ro(11)=2; ro(16) =2; ro(25)=2;
+        
     end
 end
 if(strcmp(caseName,'case5'))
@@ -127,10 +140,10 @@ params.muStdRatio = 0.15;
 params.rand_walk_w_std = 0.015; %0.03
 params.rand_walk_d_std = 0.001; %0.01
 %% DEBUG! TODO: remove
-params.demandStd = 1e-9; 
-params.muStdRatio = 1e-9;
-params.rand_walk_w_std = 1e-9; %%TODO: remove
-params.rand_walk_d_std = 0.001; 
+% params.demandStd = 1e-9;
+% params.muStdRatio = 1e-9;
+% params.rand_walk_w_std = 1e-9; %%TODO: remove
+% params.rand_walk_d_std = 0.001;
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost

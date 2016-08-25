@@ -1,9 +1,8 @@
 %bring fixed lines back online, draw failures of new lines (contingencies)
 %, and save it into 'state'
 function [state,contingenciesHappened] = updateState(params,state)
-
+get_global_constants
 [lineStatus,fixed] = getFixedLineStatus(1,1,params,state);
-
 %% draw contingencies in lines
 lineAge=state.currTime-state.topology.lastChange;
 linesUp = (state.topology.lineStatus == 1);

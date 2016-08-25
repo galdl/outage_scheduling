@@ -1,6 +1,7 @@
 %only return line status - the actual state update will be done in the
 %dynamic mode
 function [lineStatus,fixed] = getFixedLineStatus(currHour,dynamicUC,params,state)
+get_global_constants
 % update current topology and update if lines were fixed - changes both 
 % in day-ahead and in real-time (RT), used for outage_scheduling program
 % as oppose to params.line_status, which is used for the uc_nn program
@@ -14,3 +15,4 @@ lineStatus = state.topology.lineStatus;
 linesDown=(state.topology.lineStatus==0);
 fixed=linesDown.*(repmat(currTimeStamp,params.nl,1) - state.topology.lastChange > state.topology.fixDuration);
 lineStatus = lineStatus+fixed; 
+lineStatus(params.mpcase.branch(:,BR_STATUS)==0) = 0 ;

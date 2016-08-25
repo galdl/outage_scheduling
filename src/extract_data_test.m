@@ -26,12 +26,12 @@ for i_job=1:N_jobs
             outputFileList=fileList.mat;
             for i_matFile=1:length(outputFileList)
                 outputFileName = outputFileList{i_matFile};
-                loaded_file = load([fileList.path,'/',outputFileName]);
                 if(strcmp(outputFileName(end-3:end),'.mat'))
                     outputFileName = outputFileName(1:end-4);
                 end
                 %                         sdb=loaded_file.sample_db;
                 if(strcmp(outputFileName,job_output_filename))
+                    loaded_file = load([fileList.path,'/',outputFileName]);
                     final_db_test((i_job-1)*params.N_samples_test+1:i_job*params.N_samples_test,:) = loaded_file.difference_vector;
                     
                     for i_sample = 1:size(loaded_file.uc_samples,1)

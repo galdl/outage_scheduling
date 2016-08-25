@@ -19,12 +19,17 @@ if(strcmp(caseName,'case5'))
 end
 %% case 24
 if(strcmp(caseName,'case24'))
-    if(params.dropUpDownConstraints)
-        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
+    if(strcmp(params.n1_str,'n1'))
+        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-24-12-33-44--4--case24',...
             '/optimize_saved_run'];
     else
-        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-09-19-05-41--2--case24',...
-            '/optimize_saved_run'];
+        if(params.dropUpDownConstraints) % this option is false for a long time now...
+            db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
+                '/optimize_saved_run'];
+        else
+            db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-09-19-05-41--2--case24',...
+                '/optimize_saved_run'];
+        end
     end
 end
 %% case 96

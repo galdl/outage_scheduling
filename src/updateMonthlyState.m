@@ -1,4 +1,5 @@
 function state = updateMonthlyState(maintenancePlan,month,state,params)
+get_global_constants
 %% advance time to current month - assume maintenance is done in the first 
 %% day of the month, and the evaluation starts from the second
 state.currTime = state.currTime + 24*30*(month-1);
@@ -8,6 +9,7 @@ state.topology.lastChange = getLastChangeVector(maintenancePlan,month,params);
 
 %% assume all assets are on-line in the beginning of the month
 state.topology.lineStatus = ones(params.nl,1);
+state.topology.lineStatus(params.mpcase.branch(:,BR_STATUS)==0) = 0 ;
 
 %% maintenance currently takes the asset offline for the whole duration of this month's simulation, since params.fixDuration=24*params.numOfDaysPerMonth
 state.topology.lineStatus = 1 - maintenancePlan(:,month);

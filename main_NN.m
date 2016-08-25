@@ -31,7 +31,7 @@ max_concurrent_jobs = params.N_jobs_NN;
 i_job = 1;
 save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 %%
-max_iterations = 1000;
+max_iterations = 10000;
 while(i_job<max_iterations)
     if(get_current_running_jobs(jobArgs) < N_jobs_NN)
         prepare_and_send_job(i_job,dirs,program_matlab_name,db_file_path,jobArgs,params,config);
