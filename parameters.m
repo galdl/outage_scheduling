@@ -32,7 +32,7 @@ params.use_NN_UC = false; %true
 %if true - success rate will be computed as the portion of N-1 list that is
 %recoverable, averaged over the 24-hours (increases complexity by a factor
 %of params.nl, per each day of simulation)
-params.n1_success_rate = false;
+params.n1_success_rate = true;
 if(strcmp('case96',params.caseName))
     params.reliability_percentageTolerance = 50;
 end
@@ -108,12 +108,15 @@ end
 if(strcmp(caseName,'case24'))
     %% some changes to make things interesting
     params.mpcase.branch(1,BR_STATUS)=0;
-    params.mpcase.bus(3,PD)=params.mpcase.bus(1,PD)+params.mpcase.bus(3,PD);
-    params.mpcase.bus(1,PD)=0;
-    params.mpcase.bus(4,PD)=params.mpcase.bus(2,PD)+params.mpcase.bus(4,PD);
-    params.mpcase.bus(2,PD)=0;
+    params.mpcase.bus(3,[PD,QD])=params.mpcase.bus(1,[PD,QD])+params.mpcase.bus(3,[PD,QD]);
+    params.mpcase.bus(1,[PD,QD])=0;
+    params.mpcase.bus(4,[PD,QD])=params.mpcase.bus(2,[PD,QD])+params.mpcase.bus(4,[PD,QD]);
+    params.mpcase.bus(2,[PD,QD])=0;
     
-    ro(2:5)=2; ro(10)=2;   ro(11)=1; ro(25)=2;    ro(26)=2; r(31)=2; r(38)=2;
+    params.mpcase.bus(10,BS) = params.mpcase.bus(6,BS);
+    params.mpcase.bus(6,BS) = 0;
+    
+    ro(2:5)=2;   ro(11)=1; ro(25)=2;    ro(26)=2; r(31)=2; r(38)=2; % ro(10)=2;
     
     params.mpcase.branch(1,RATE_A)=1e-9;
     params.mpcase.branch([24;27],RATE_A)=250;
@@ -137,13 +140,13 @@ params.alpha = 0.05; % success_rate chance-constraint parameter : P['bad event']
 %% demand and wind STDs
 params.demandStd = 0.05; %0.05
 params.muStdRatio = 0.15;
-params.rand_walk_w_std = 0.015; %0.03
-params.rand_walk_d_std = 0.001; %0.01
+params.rand_walk_w_std = 0.004; %0.03
+params.rand_walk_d_std = 0.0015; %0.01
 %% DEBUG! TODO: remove
 % params.demandStd = 1e-9;
 % params.muStdRatio = 1e-9;
 % params.rand_walk_w_std = 1e-9; %%TODO: remove
-% params.rand_walk_d_std = 0.001;
+% params.rand_walk_d_std = 1e-9;
 %% VOLL
 params.VOLL = 1000;
 %% fine payment escalation cost
@@ -164,7 +167,7 @@ params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verb
 %% db random NN mode
 params.db_rand_mode = true;
 %% choose whether to run in n-1 mode
-params.n1_str = 'n1'; %'n1,not-n1'
+params.n1_str = 'not-n1'; %'n1,not-n1'
 %% contingency prob per line
 if(strcmp('case96',params.caseName))
     params.failure_probability = 0.08;

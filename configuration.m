@@ -21,8 +21,10 @@ config.REMOTE_SERVER_MATLAB_PROGRAM_PATH = '/usr/local/bin/matlab2015b';
 % relative dir is shared among the local and remote dirs. 
 if(strcmp(config.program_name,'outage_scheduling'))
     folder = 'Outage_scheduling';
+    config.memory_used = 8;
 else
     folder = 'UC_NN';
+    config.memory_used = 2;
 end
 config.RELATIVE_DIR_OPTIMIZE    = ['output/',folder,'/saved_runs/Optimize/'];
 config.RELATIVE_DIR_COMPARE = ['output/',folder,'/saved_runs/Compare/'];
@@ -37,3 +39,4 @@ config.fraction_of_finished_jobs=0.95;
 
 config.PLAN_DIRNAME_PREFIX = 'plan_';
 config.SPLIT_DIR = '/split_data';
+

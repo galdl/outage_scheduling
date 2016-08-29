@@ -9,6 +9,7 @@ horizon=params.horizon;
 mpc=params.mpcase;
 demandVector=zeros(horizon,1);
 isolatedLastBus=0;
+rate_a_limit = 1e-9;
 %% data dimensions
 nb   = size(mpc.bus, 1);    %% number of buses
 nl   = size(mpc.branch, 1); %% number of branches
@@ -61,7 +62,7 @@ end
 %% In outage_scheduling program, it is being updated through the state struct
 if(isfield(params,'line_status'))
     mpc.branch(:,BR_STATUS)=params.line_status;
-    mpc.branch(logical(1-params.line_status),RATE_A)=1e-9;
+    mpc.branch(logical(1-params.line_status),RATE_A)=rate_a_limit;
 end
 %% ignore reactive costs for DC
 mpc.gencost = pqcost(mpc.gencost, ng);
@@ -156,7 +157,7 @@ for k = 1:horizon
     %% as oppose to params.line_status, which is used for the uc_nn program
     [lineStatus_OS] = getFixedLineStatus(currHour,dynamicUC,params,state);
     currBranch(:,BR_STATUS)=lineStatus_OS;
-    currBranch(logical(1-lineStatus_OS),RATE_A)=1e-9;
+    currBranch(logical(1-lineStatus_OS),RATE_A)=rate_a_limit;
 
     %% N-1 criterion - N(=nl) possible single line outage
     for i_branch = 1:N_contingencies+1
@@ -167,7 +168,7 @@ for k = 1:horizon
             %for i_branc==1, no contingencies.
             %for i_branc==2, 1st contingency, etc..
             newMpcase.branch(i_branch-1,BR_STATUS)=0;
-            newMpcase.branch(i_branch-1,RATE_A)=1e-9;
+            newMpcase.branch(i_branch-1,RATE_A)=rate_a_limit;
         end
         if(sum(newMpcase.branch(:,BR_STATUS))==0)
             Pg=zeros(size((Pg)));
