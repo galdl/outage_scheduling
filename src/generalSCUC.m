@@ -3,6 +3,7 @@
 %where we try to not deviate from the original onoff plan, and to have the
 %least deviation from the original Pg due to redispatch costs
 function [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost]=generalSCUC(str,params,state,dynamicUCParams)
+tic
 %% Data - horizon is 1 for dynamic mode
 % params=getProblemParams_yalmip(mpcase);
 horizon=params.horizon;
@@ -61,7 +62,11 @@ end
 %% update contingencies - if field exists (currently, only used in the UC_NN program. 
 %% In outage_scheduling program, it is being updated through the state struct
 if(isfield(params,'line_status'))
-    mpc.branch(:,BR_STATUS)=params.line_status;
+%     mpc.branch(:,BR_STATUS)=params.line_status; %this doesn't seem to
+%     affect anything in our DC UC function. The only thing it does is ruin
+%     the calculation - RATE_A limit is irrelevant when BR_STATUS=0, while
+%     BR_STATUS=0 generates the same result as with  BR_STATUS=1 and no
+%      strong limit on RATE_A
     mpc.branch(logical(1-params.line_status),RATE_A)=rate_a_limit;
 end
 %% ignore reactive costs for DC
@@ -156,7 +161,7 @@ for k = 1:horizon
     %% in day-ahead and in real-time (RT), used for outage_scheduling program
     %% as oppose to params.line_status, which is used for the uc_nn program
     [lineStatus_OS] = getFixedLineStatus(currHour,dynamicUC,params,state);
-    currBranch(:,BR_STATUS)=lineStatus_OS;
+%     currBranch(:,BR_STATUS)=lineStatus_OS;
     currBranch(logical(1-lineStatus_OS),RATE_A)=rate_a_limit;
 
     %% N-1 criterion - N(=nl) possible single line outage
@@ -167,7 +172,7 @@ for k = 1:horizon
         if(i_branch>1)
             %for i_branc==1, no contingencies.
             %for i_branc==2, 1st contingency, etc..
-            newMpcase.branch(i_branch-1,BR_STATUS)=0;
+%             newMpcase.branch(i_branch-1,BR_STATUS)=0;
             newMpcase.branch(i_branch-1,RATE_A)=rate_a_limit;
         end
         if(sum(newMpcase.branch(:,BR_STATUS))==0)
@@ -317,7 +322,10 @@ gurobiParams.MIPGap=1e-2; %(default is 1e-4)
 % ops = sdpsettings('solver','cplex','verbose',params.verbose);
 
 % result=optimize(Constraints,Objective,ops); %verify that value(objective) is
+toc
+tic
 result=optimize(Constraints,Objective,params.optimizationSettings); %verify that value(objective) is
+toc
 % the value of the objective , proper use will just be to
 %calculate the objective cost given the solution (for OPF:
 %sum(totcost(gencost,value(Pg))).*onoff )

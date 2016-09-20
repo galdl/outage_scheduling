@@ -17,14 +17,14 @@ config.SAVE_FILENAME = [config.run_mode,'_saved_run'];
 % (setting whether such server is used is done with 'remote_cluster' variable)
 config.REMOTE_DIR_ROOT = '/u/gald/PSCC16_continuation/current_version/';
 config.REMOTE_SERVER_MATLAB_WORKPATH = '/u/gald/PSCC16_continuation/current_version/src';
-config.REMOTE_SERVER_MATLAB_PROGRAM_PATH = '/usr/local/bin/matlab2015b';
+config.REMOTE_SERVER_MATLAB_PROGRAM_PATH = '/usr/local/bin/matlab2016a'; %matlab2015b,matlab2016a
 % relative dir is shared among the local and remote dirs. 
 if(strcmp(config.program_name,'outage_scheduling'))
     folder = 'Outage_scheduling';
-    config.memory_used = 8;
+    config.memory_used = 4;
 else
     folder = 'UC_NN';
-    config.memory_used = 2;
+    config.memory_used = 8;
 end
 config.RELATIVE_DIR_OPTIMIZE    = ['output/',folder,'/saved_runs/Optimize/'];
 config.RELATIVE_DIR_COMPARE = ['output/',folder,'/saved_runs/Compare/'];

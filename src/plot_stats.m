@@ -243,6 +243,7 @@ scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn_rand+Z*randn(size(cost_nn_ran
 
 title('cost scatter of exact vs. rand NN');
 
+
 %% draw dependence in reliability
 % reliability_orig = final_db_test(idx_low_std,4);
 % [reliability_orig_sorted,idx] = sort(reliability_orig);

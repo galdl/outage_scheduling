@@ -4,7 +4,7 @@ set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
 run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 3;
+prefix_num = 1;
 caseName = 'case24'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
@@ -23,19 +23,14 @@ if(strcmp(caseName,'case24'))
         db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-24-12-33-44--4--case24',...
             '/optimize_saved_run'];
     else
-        if(params.dropUpDownConstraints) % this option is false for a long time now...
-            db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-07-24-12-27-30--1--case24',...
-                '/optimize_saved_run'];
-        else
-            db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-09-19-05-41--2--case24',...
-                '/optimize_saved_run'];
-        end
+        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-09-05-16-38-12--1--case24',...
+            '/optimize_saved_run'];
     end
 end
 %% case 96
 if(strcmp(caseName,'case96'))
-        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-11-15-14-03--1--case96',...
-            '/optimize_saved_run'];
+    db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-11-15-14-03--1--case96',...
+        '/optimize_saved_run'];
 end
 %% common initialization to optimize and compare
 epsilon=0.005;
@@ -43,6 +38,8 @@ planSize=[params.nl,params.numOfMonths];
 n = planSize(1)*planSize(2);
 p = 0.5*ones(n,1);
 pauseDuration=60; %seconds
+killRemainingJobs(jobArgs);
+pause(3);
 if(strcmp(run_mode,'optimize'))
     
     %% meta-optimizer initialized
@@ -59,8 +56,6 @@ if(strcmp(run_mode,'optimize'))
     bestPlanVecTemp = cell(9,N_plans,params.N_CE);
     i_CE=1;
     
-    killRemainingJobs(jobArgs);
-    pause(3);
     %% optimization iterations - each w/ multiple solutions (m.plans)
     while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
         try
@@ -181,19 +176,20 @@ if(strcmp(run_mode,'optimize'))
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 else
     %% generate solutions for assesment
-    
+    generate_new_plans = 0;
+    if(generate_new_plans)
         N_plans=10;
         X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
-                mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
-    %     save('mPlanBatch','mPlanBatch','N_plans');
-    
-    %% load mPlanBatch
-%     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
-%     new_plans = [2,3,4,6,7,9:19];
-%     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
-%     load('mPlanBatch');
-
+        mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
+        save('mPlanBatch','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
+    else
+        %% load mPlanBatch
+        %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
+        %     new_plans = [2,3,4,6,7,9:19];
+        %     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
+        load('mPlanBatch');
+    end
     %% send assessment jobs
     params_with_DA_scenarios = cell(params.numOfMonths,1);
     for i_plan=1:N_plans
@@ -222,6 +218,6 @@ else
     %% extract their values
     [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA] = ...
         extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
-     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
+    save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
     plot_outage_compare
 end

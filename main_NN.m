@@ -4,8 +4,8 @@ set_global_constants()
 run('get_global_constants.m')
 program_name =  'uc_nn'; %'outage_scheduling','uc_nn'
 run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 4;
-caseName = 'case24'; %case5,case9,case14,case24,case96
+prefix_num = 1;
+caseName = 'case96'; %case5,case9,case14,case24,case96
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Load UC_NN database path
@@ -31,9 +31,10 @@ max_concurrent_jobs = params.N_jobs_NN;
 i_job = 1;
 save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 %%
-max_iterations = 10000;
+max_iterations = 2e5;
 while(i_job<max_iterations)
     if(get_current_running_jobs(jobArgs) < N_jobs_NN)
+        params.job_category = params.categories(1+mod(i_job-1,length(params.categories)));
         prepare_and_send_job(i_job,dirs,program_matlab_name,db_file_path,jobArgs,params,config);
         i_job = i_job+1;
         display(['current running jobs: ',num2str(get_current_running_jobs(jobArgs))]);
@@ -78,7 +79,7 @@ else
     tic
     [final_db_test,finished_idx,uc_samples] = extract_data_test(dirs.full_localRun_dir,config.JOB_DIRNAME_PREFIX,dirs.job_output_filename,params);
     toc
-    save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
+    save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction'], '-v7.3');
     %%
     plot_stats
 end

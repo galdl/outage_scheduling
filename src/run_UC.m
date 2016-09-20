@@ -7,7 +7,9 @@ params.windScenario = windScenario;
 params.demandScenario = demandScenario;
 params.line_status = line_status;
 state.topology.lineStatus = line_status;
+% state.topology.lastChange(logical(1-line_status))=state.currTime;
 state.topology.lastChange(logical(1-line_status))=0;
+
 [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost] = generalSCUC(str,params,state,[]);
 uc_sample.success = success;
 uc_sample.onoff = onoff;
