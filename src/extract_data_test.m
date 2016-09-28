@@ -10,12 +10,15 @@ end
 
 [~,n_str] = unix(['ls ',fullLocalParentDir,' |grep ',JOB_DIRNAME_PREFIX,'|wc -l']);
 N_jobs = str2num(n_str);
-
 final_db_test = nan(N_jobs*params.N_samples_test,vec_size);
 uc_samples = cell(N_jobs*params.N_samples_test,3);
 
+mod_interval=50;
 
 for i_job=1:N_jobs
+    if(mod(i_job,mod_interval)==1)
+        display(['Extract iteration ',num2str(i_job),' out of ',num2str(N_jobs)]);
+    end
     %     try
     lsPath=[fullLocalParentDir,'/',JOB_DIRNAME_PREFIX,num2str(i_job)];
     outputFolder=what(lsPath);

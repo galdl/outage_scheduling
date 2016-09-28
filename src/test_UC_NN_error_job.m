@@ -10,6 +10,7 @@ loaded_arguments =load([argumentFileDir,'/',argumentFileName]);
 nn_database =load(loaded_arguments.db_file_path); % all information needed is in the DB
 %% restore data
 [final_db,sample_matrix] = restoreSplitData([nn_database.dirs.full_remoteRun_dir,'/',nn_database.config.SPLIT_DIR]);
+%[final_db,sample_matrix] = restoreSplitData([dirs.full_localRun_dir,'/',config.SPLIT_DIR]);
 %% call the function
  %nn_database.params is intentional - the configuration used to generate the
  %samples is the same one to test them (e.g. %params.dropUpDownConstraints)

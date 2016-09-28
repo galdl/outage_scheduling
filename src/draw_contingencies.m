@@ -6,10 +6,10 @@ num_of_zones = size(params.requested_outages,2);
 outage_zone = randsample(num_of_zones,1);
 no_outage_zone = setdiff(1:num_of_zones,outage_zone);
 %% keep only the contingencies that are relevant for the needed outages
-if(sum(params.requested_outages)>0)
+% if(sum(params.requested_outages)>0)
     possible_outages = (params.requested_outages>0);
     line_status(logical(1-possible_outages(:,outage_zone))) = 1;
-end
+% end
 
 line_status(params.mpcase.branch(:,BR_STATUS)==0) = 0 ;
 %% o

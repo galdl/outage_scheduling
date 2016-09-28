@@ -10,7 +10,7 @@ state.topology.lineStatus = line_status;
 % state.topology.lastChange(logical(1-line_status))=state.currTime;
 state.topology.lastChange(logical(1-line_status))=0;
 
-[Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost] = generalSCUC(str,params,state,[]);
+[Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost,warm_start,solution_time] = generalSCUC(str,params,state,[]);
 uc_sample.success = success;
 uc_sample.onoff = onoff;
 uc_sample.objective = objective;
@@ -18,3 +18,5 @@ uc_sample.Pg = Pg;
 uc_sample.windSpilled = windSpilled;
 uc_sample.loadLost = loadLost;
 uc_sample.voltage_setpoints = [];
+uc_sample.solution_time = solution_time;
+uc_sample.warm_start = warm_start;

@@ -24,7 +24,7 @@ for j=1:N_test
         tic
     end
     %% draw stochastic variables of the new sample
-    [demandScenario,windScenario] = generateDemandWind_with_category(1:params.horizon,params,state,isStochastic);
+    [demandScenario,windScenario,category] = generateDemandWind_with_category(1:params.horizon,params,state,isStochastic);
     uc_sample_orig.windScenario = windScenario;
     uc_sample_orig.demandScenario = demandScenario;
     uc_sample_orig.line_status = draw_contingencies(params);
@@ -34,10 +34,18 @@ for j=1:N_test
     [NN_uc_sample_vec,NN_uc_sample_rand]= get_uc_NN(final_db,sample_matrix,uc_sample_orig,params);
     toc
     % compute optimal UC plan for the drawn case
-    
+    %% in case we are in compare_solution_times mode, generate warm_start values first
+    %% after building a new data-base with the warm_start option, this will be replaced with an immediate stored value
+    if(params.compare_solution_times)
+        uc_sample_nn = NN_uc_sample_vec{1};
+        uc_sample_nn = run_UC(params.n1_str , state , uc_sample_nn.demandScenario , uc_sample_nn.windScenario , uc_sample_nn.line_status, params);
+        params.warm_start = uc_sample_nn.warm_start;
+    end
+    %% generate exact solution
     tic
     uc_sample_orig = run_UC(params.n1_str , state , uc_sample_orig.demandScenario , uc_sample_orig.windScenario , uc_sample_orig.line_status, params);
     toc
+    uc_sample_orig.category = category;
     uc_samples{j,1} = uc_sample_orig;
     uc_samples{j,2} = NN_uc_sample_vec;
     uc_samples{j,3} = NN_uc_sample_rand;

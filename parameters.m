@@ -1,11 +1,14 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=100; %240
+params.N_jobs_NN=150; %240
+params.compare_solution_times = 1;
+
 %% number of samples for building db in each job
 params.N_samples_bdb = 10; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);%1
-
+%% choose whether to run in n-1 mode
+params.n1_str = 'n1'; %'n1,not-n1'
 %% Outage_scheduling simulation parameters
 params.N_CE=15; %15
 %in case5, 4 months, 75 plans , 2x10 - finished in 40 mins
@@ -96,29 +99,31 @@ params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
 %% set up requested outages
 ro = zeros(params.nl,1);
 
-if(strcmp(caseName,'case96'))
-     %% some changes to make things interesting
+if(strcmp(caseName,'case96') && ~strcmp(params.n1_str,'n1'))
+    % if(strcmp(caseName,'case96'))
+    %% some changes to make things interesting
     params.mpcase.branch([1;42;80],BR_STATUS)=0;
     params.mpcase.branch([1;42;80],RATE_A)=0;
-
+    
     bus_change_local = [1,2]; bus_change = [bus_change_local,bus_change_local+24,bus_change_local+24*2];
     for b=bus_change
         params.mpcase.bus(b+2,[PD,QD])=params.mpcase.bus(b,[PD,QD])+params.mpcase.bus(b+2,[PD,QD]);
         params.mpcase.bus(b,[PD,QD])=0;
     end
-%     params.mpcase.bus(10,BS) = params.mpcase.bus(6,BS);
-%     params.mpcase.bus(6,BS) = 0;
+    %     params.mpcase.bus(10,BS) = params.mpcase.bus(6,BS);
+    %     params.mpcase.bus(6,BS) = 0;
     %For case96 we choose one area and then choose its outages. Therefore we have 3 columns.
-    ro = zeros(120,3); 
+    ro = zeros(120,3);
     
-    ro(2:5,1)=2;      ro(11,1)=1;      %ro(33)=2;    %ro(40)=2; %   
-    ro(43:46,2)=2;    ro(52,2)=1;      %ro(72)=2;    %ro(79)=2; %   
-    ro(81:84,3)=2;    ro(90,3)=1;      %ro(110)=2;   %ro(117)=2;%   
+    ro(2:5,1)=2;      ro(11,1)=1;      %ro(33)=2;    %ro(40)=2; %
+    ro(43:46,2)=2;    ro(52,2)=1;      %ro(72)=2;    %ro(79)=2; %
+    ro(81:84,3)=2;    ro(90,3)=1;      %ro(110)=2;   %ro(117)=2;%
     
     ro(12,1:3)=1;  ro(119,1:3)=1; ro(120,1:3)=1;
-
+    
 end
 
+% if(strcmp(caseName,'case24') && ~strcmp(params.n1_str,'n1'))
 if(strcmp(caseName,'case24'))
     %% some changes to make things interesting
     params.mpcase.branch(1,BR_STATUS)=0;
@@ -129,14 +134,13 @@ if(strcmp(caseName,'case24'))
     
     params.mpcase.bus(10,BS) = params.mpcase.bus(6,BS);
     params.mpcase.bus(6,BS) = 0;
-    
-    ro(2:5)=2;   ro(11)=1; ro(25)=2;    ro(26)=2; %r(31)=2; r(38)=2; 
-    
     params.mpcase.branch(1,RATE_A)=1e-9;
     params.mpcase.branch([24;27],RATE_A)=250;
-    
-    if(strcmp(config.program_name,'compare')) %add some
-        
+    if(~strcmp(params.n1_str,'n1'))
+        ro(2:5)=2;   ro(11)=1; ro(25)=2;    ro(26)=2; %r(31)=2; r(38)=2;      
+        %     if(strcmp(config.program_name,'compare')) %add some
+        %
+        %     end
     end
 end
 if(strcmp(caseName,'case5'))
@@ -180,8 +184,6 @@ params.optimizationSettings = sdpsettings('solver','cplex','verbose',params.verb
 % ops = sdpsettings('solver','cplex');
 %% db random NN mode
 params.db_rand_mode = true;
-%% choose whether to run in n-1 mode
-params.n1_str = 'not-n1'; %'n1,not-n1'
 %% contingency prob per line
 if(strcmp('case96',params.caseName))
     params.failure_probability = 0.08;
@@ -195,7 +197,7 @@ params.KNN = 10;
 if(strcmp(params.caseName,'case24'))
     %     categories = linspace(2.5,5.5,5);
     categories = linspace(3.5,4.5,5);
-        %     extra_categories = linspace(4.75,5.5,4);
+    %     extra_categories = linspace(4.75,5.5,4);
     extra_categories = linspace(4.25,4.5,4);
     categories = [categories(1:3),extra_categories];
     monthly_categories_vec = [7,7:-1:1,2,4,5,6];
@@ -203,9 +205,9 @@ if(strcmp(params.caseName,'case24'))
 end
 
 if(strcmp(params.caseName,'case96'))
-%     categories = linspace(2.5,5.5,5);
+    %     categories = linspace(2.5,5.5,5);
     categories = linspace(3.5,4.5,5);
-
+    
     extra_categories = linspace(4.25,4.5,6);
     categories = [categories(1:3),extra_categories];
     monthly_categories_vec = [9:-1:2,3,5,7,9];

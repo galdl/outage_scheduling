@@ -3,9 +3,9 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'uc_nn'; %'outage_scheduling','uc_nn'
-run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 1;
-caseName = 'case96'; %case5,case9,case14,case24,case96
+run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+prefix_num = 5;
+caseName = 'case24'; %case5,case9,case14,case24,case96
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Load UC_NN database path

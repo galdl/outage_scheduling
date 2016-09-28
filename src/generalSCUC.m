@@ -2,7 +2,7 @@
 %When nargin>2 , this function is used for the dynamic myopic UC (horizon=1),
 %where we try to not deviate from the original onoff plan, and to have the
 %least deviation from the original Pg due to redispatch costs
-function [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost]=generalSCUC(str,params,state,dynamicUCParams)
+function [Pg,objective,onoff,y,demandVector,success,windSpilled,loadLost,warm_start,solution_time]=generalSCUC(str,params,state,dynamicUCParams)
 tic
 %% Data - horizon is 1 for dynamic mode
 % params=getProblemParams_yalmip(mpcase);
@@ -30,6 +30,20 @@ Va     = sdpvar(nb,horizon,N_contingencies+1,'full');
 Pg     = sdpvar(ng,horizon,'full');
 sp      = sdpvar(nb,horizon,'full'); %wind spillage variable
 ls      = sdpvar(nb,horizon,'full'); %load shedding variable
+
+warm_start_mode = 0;
+if(isfield(params,'warm_start') && ~isempty(params.warm_start))
+    assign(onoff,params.warm_start.onoff);
+    assign(Pg,params.warm_start.Pg);
+    assign(sp,params.warm_start.sp);
+    assign(ls,params.warm_start.ls);
+    assign(on,params.warm_start.on);
+    assign(off,params.warm_start.off);
+    assign(z,params.warm_start.z);
+    assign(Va,params.warm_start.Va);
+    warm_start_mode = 1;
+end
+
 
 % Constraints = onoff==params.oo;
 Constraints=[];
@@ -133,6 +147,9 @@ if(ny>0)
         %in by, and we'll then get y>=0 for all generators that are off! :)
     end
 else y=0;
+    if(warm_start_mode)
+        assign(y,params.warm_start.y);
+    end
 end
 
 currBranch=mpc.branch;
@@ -172,7 +189,7 @@ for k = 1:horizon
         if(i_branch>1)
             %for i_branc==1, no contingencies.
             %for i_branc==2, 1st contingency, etc..
-%             newMpcase.branch(i_branch-1,BR_STATUS)=0;
+            newMpcase.branch(i_branch-1,BR_STATUS)=0;
             newMpcase.branch(i_branch-1,RATE_A)=rate_a_limit;
         end
         if(sum(newMpcase.branch(:,BR_STATUS))==0)
@@ -322,10 +339,18 @@ gurobiParams.MIPGap=1e-2; %(default is 1e-4)
 % ops = sdpsettings('solver','cplex','verbose',params.verbose);
 
 % result=optimize(Constraints,Objective,ops); %verify that value(objective) is
-toc
+solution_time =zeros(1,3);
+solution_time(3)=toc
 tic
 result=optimize(Constraints,Objective,params.optimizationSettings); %verify that value(objective) is
-toc
+solution_time(1) = toc
+if(params.compare_solution_times && warm_start_mode)
+    params.optimizationSettings.usex0 = 1;
+    tic
+    result=optimize(Constraints,Objective,params.optimizationSettings); %verify that value(objective) is
+    solution_time(2) = toc
+end
+
 % the value of the objective , proper use will just be to
 %calculate the objective cost given the solution (for OPF:
 %sum(totcost(gencost,value(Pg))).*onoff )
@@ -335,5 +360,21 @@ onoff=value(onoff);
 success = (~isempty(strfind(result.info,'Successfully solved')));
 windSpilled=value(sp);
 loadLost = value(ls);
+
+%% save warm_start values
+warm_start.ls = value(ls);
+warm_start.sp = value(sp);
+warm_start.onoff = value(onoff);
+warm_start.Objective = value(Objective);
+warm_start.Pg = value(Pg);
+warm_start.on = value(on);
+warm_start.off = value(off);
+warm_start.z = value(z);
+warm_start.Va = value(Va);
+warm_start.y = value(y);
+% warm_start.onExtended = value(onExtended);
+% warm_start.offExtended = value(offExtended);
+% warm_start.onoffExtended = value(onoffExtended);
+
 
 

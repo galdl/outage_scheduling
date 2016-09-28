@@ -11,6 +11,15 @@ sample_matrix = sample_matrix(:,no_nan_idx);
 final_db_b = final_db;
 final_db(find(isnan(first_row)))=[];
 
+no_success = [];
+for i_sample = 1:length(final_db)
+    if(~final_db{i_sample}.success)
+        no_success = [no_success,i_sample];
+    end
+end
+length(no_success)/length(final_db)
+final_db(no_success) = [];
+sample_matrix(:,no_success) = [];
 
 %% check cost behavior compared to a specific line_status
 % line_status = [0;0;1;1;0;ones(params.nl-5,1)];
@@ -128,18 +137,21 @@ else
 end
 relative_error_vec = zeros(length(train_size_vec),2);
 correlation_vec = zeros(length(train_size_vec),1);
+average_NN_distance_vec = zeros(length(train_size_vec),1);
+
 for i_size = 1:length(train_size_vec) 
     train_idx = permuted_idx(test_size+1:test_size+1+train_size_vec(i_size));
     train_final_db = final_db(train_idx);
     train_sample_matrix = sample_matrix(:,train_idx);
-    [relative_error,correlation] = compute_regression_error(train_final_db,train_sample_matrix,test_final_db,params,false,case_title);
+    [relative_error,correlation,average_NN_distance] = compute_regression_error(train_final_db,train_sample_matrix,test_final_db,params,false,case_title);
     relative_error_vec(i_size,:) = relative_error;
     correlation_vec(i_size) = correlation;
+    average_NN_distance_vec(i_size) = average_NN_distance;
 end
-
+%% plot as a function of train set size
 font_size=17;
 figure;
-xHandles(1)=subplot(2,1,1);
+xHandles(1)=subplot(3,1,1);
 errorbar(train_size_vec,relative_error_vec(:,1),relative_error_vec(:,2));
 title([case_title,' - average relative error as function train set size'],'FontSize', font_size);
 set(gca,'fontsize',font_size);
@@ -147,14 +159,23 @@ xlim([0,train_size_vec(end)+200]);
 xlabel('Train set size');
 ylabel('Average relative error');
 
-xHandles(2)=subplot(2,1,2);
+xHandles(2)=subplot(3,1,2);
 plot(train_size_vec,correlation_vec);
 title([case_title,' linear correlation as function train set size'],'FontSize', font_size);
 set(gca,'fontsize',font_size);
 xlim([0,train_size_vec(end)+200]);
 xlabel('Train set size');
 ylabel('Linear correlation');
-    [relative_error,correlation] = compute_regression_error(train_final_db,train_sample_matrix,test_final_db,params,true,case_title);
+
+xHandles(3)=subplot(3,1,3);
+plot(train_size_vec,average_NN_distance_vec);
+title([case_title,' average NN distance as function train set size'],'FontSize', font_size);
+set(gca,'fontsize',font_size);
+xlim([0,train_size_vec(end)+200]);
+xlabel('Train set size');
+ylabel('Average NN distance');
+%% plot overall 
+[relative_error,correlation] = compute_regression_error(train_final_db,train_sample_matrix,test_final_db,params,true,case_title);
 
 % linkaxes(xHandles,'xy');
 

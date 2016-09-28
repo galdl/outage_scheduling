@@ -28,7 +28,7 @@ for j=1:KNN
     NN_uc_sample_vec{j}=NN_uc_sample;
     i_nn = i_nn + 1;
 end
-NN_distance = sorted_distances(i_nn);
+NN_distance = sorted_distances(i_nn-1);
 %% for debugging - also draw a random neighbour
 NN_uc_sample_rand=[];
 if(params.db_rand_mode)
