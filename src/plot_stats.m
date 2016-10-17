@@ -2,10 +2,15 @@
 KNN = params.KNN;
 font_size = 20;
 % KNN = 2;
+final_db_test_b = final_db_test;
+final_db_test(final_db_test(:,1)==0,:)=[];
 %% plot KNN stats and decide on label using NN
 
 if(KNN>1)
-    std_max_vec = [0.01,0.02,0.03,0.04,0.05,0.08,0.1,0.15,0.3,0.5];
+%     std_max_vec = [0.01,0.02,0.03,0.04,0.05,0.08,0.1,0.15,0.3,0.5];
+%       std_max_vec = [0.001,0.005,0.01,0.02,0.03,0.04,0.05,0.08,0.1,50];
+      std_max_vec = [0.001,0.05,0.1,0.12,0.15,0.2,0.25,0.35,0.45,1];
+
     xHandles=zeros(length(std_max_vec),1);
     figure(1);
     for i_std_max = 1:length(std_max_vec)
@@ -31,7 +36,7 @@ if(KNN>1)
 end
 %% draw histograms
 std_max_thresh = 1;
-idx_low_std = (NN_std_full<max_std_thresh);
+idx_low_std = (NN_std_full<std_max_thresh);
 xHandles2 = zeros(1,4);
 figure(3);
 
@@ -186,62 +191,62 @@ set(gca,'fontsize',font_size);
 %%
 figure(8);
 scatter(reliability_orig_rand+Z*randn(size(reliability_orig_rand)),reliability_NN_rand+Z*randn(size(reliability_NN_rand)),S);
-%% plot cost scatter of exact vs. NN
-Z=0.000;
-Z=0;
-S=3;
-
-max_std_thresh = 1;
-max_std_thresh = inf;
-
-KNN_samples = final_db_test(:,4:4+KNN-1);
-NN_std_full = std(KNN_samples,0,2);
-%retain only samples with std below max_std_thresh. Used both for removing nans, and better understaing the plot
-retain_idx = (NN_std_full<max_std_thresh); %filters out NaN as well
-
-KNN_samples_full = final_db_test(retain_idx,:);
-retain_idx_loc = find(retain_idx);
-
-cost_orig = zeros(length(retain_idx_loc),1);
-cost_nn = zeros(length(retain_idx_loc),1);
-cost_nn_rand = zeros(length(retain_idx_loc),1);
-for i_sample = 1:length(retain_idx_loc)
-    uc_sample_orig = uc_samples{retain_idx_loc(i_sample),1};
-    uc_sample_nn = uc_samples{retain_idx_loc(i_sample),2}{1};
-    uc_sample_nn_rand = uc_samples{retain_idx_loc(i_sample),3};
-    cost_orig(i_sample) = uc_sample_orig.objective;
-    cost_nn(i_sample) = uc_sample_nn.objective;
-    cost_nn_rand(i_sample) = uc_sample_nn_rand.objective;
-end
-
-
-figure(9);
-scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn+Z*randn(size(cost_nn)),S);
-[r,p]=corr(cost_orig,cost_nn)
-
-% high_idx = (cost_orig > 5e6);
+%% plot cost scatter of exact vs. NN - moved to investigate_sample_matrix (no need for 'compare' mode for costs)
+% Z=0.000;
+% Z=0;
+% S=3;
 % 
-% cost_orig_partial = cost_orig(high_idx);
-% cost_nn_partial = cost_nn(high_idx);
-% [r,p]=corr(cost_orig_partial,cost_nn_partial)
-% figure(99);
+% max_std_thresh = 1;
+% max_std_thresh = inf;
 % 
-% scatter(cost_orig_partial,cost_nn_partial,S);
-
-
-
-% title('cost scatter of exact vs. NN');
-title(['Cost scatter of exact vs. NN. Correlation coefficient: ',num2str(r)],'FontSize', font_size);
-xlabel('Exact UC solution [$]', 'FontSize', font_size)
-ylabel('NN UC solution cost [$]', 'FontSize', font_size)
-set(gca,'fontsize',font_size);
-
-
-figure(10);
-scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn_rand+Z*randn(size(cost_nn_rand)),S);
-[r,p]=corr(cost_orig,cost_nn_rand)
-
-title('cost scatter of exact vs. rand NN');
+% KNN_samples = final_db_test(:,4:4+KNN-1);
+% NN_std_full = std(KNN_samples,0,2);
+% %retain only samples with std below max_std_thresh. Used both for removing nans, and better understaing the plot
+% retain_idx = (NN_std_full<max_std_thresh); %filters out NaN as well
+% 
+% KNN_samples_full = final_db_test(retain_idx,:);
+% retain_idx_loc = find(retain_idx);
+% 
+% cost_orig = zeros(length(retain_idx_loc),1);
+% cost_nn = zeros(length(retain_idx_loc),1);
+% cost_nn_rand = zeros(length(retain_idx_loc),1);
+% for i_sample = 1:length(retain_idx_loc)
+%     uc_sample_orig = uc_samples{retain_idx_loc(i_sample),1};
+%     uc_sample_nn = uc_samples{retain_idx_loc(i_sample),2}{1};
+%     uc_sample_nn_rand = uc_samples{retain_idx_loc(i_sample),3};
+%     cost_orig(i_sample) = uc_sample_orig.objective;
+%     cost_nn(i_sample) = uc_sample_nn.objective;
+%     cost_nn_rand(i_sample) = uc_sample_nn_rand.objective;
+% end
+% 
+% 
+% figure(9);
+% scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn+Z*randn(size(cost_nn)),S);
+% [r,p]=corr(cost_orig,cost_nn)
+% 
+% % high_idx = (cost_orig > 5e6);
+% % 
+% % cost_orig_partial = cost_orig(high_idx);
+% % cost_nn_partial = cost_nn(high_idx);
+% % [r,p]=corr(cost_orig_partial,cost_nn_partial)
+% % figure(99);
+% % 
+% % scatter(cost_orig_partial,cost_nn_partial,S);
+% 
+% 
+% 
+% % title('cost scatter of exact vs. NN');
+% title(['Cost scatter of exact vs. NN. Correlation coefficient: ',num2str(r)],'FontSize', font_size);
+% xlabel('Exact UC solution [$]', 'FontSize', font_size)
+% ylabel('NN UC solution cost [$]', 'FontSize', font_size)
+% set(gca,'fontsize',font_size);
+% 
+% 
+% figure(10);
+% scatter(cost_orig+Z*randn(size(cost_orig)),cost_nn_rand+Z*randn(size(cost_nn_rand)),S);
+% [r,p]=corr(cost_orig,cost_nn_rand)
+% 
+% title('cost scatter of exact vs. rand NN');
 
 
 %% draw dependence in reliability

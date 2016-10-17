@@ -3,9 +3,9 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'uc_nn'; %'outage_scheduling','uc_nn'
-run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
-prefix_num = 5;
-caseName = 'case24'; %case5,case9,case14,case24,case96
+run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+prefix_num = 4;
+caseName = 'case96'; %case5,case9,case14,case24,case96
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Load UC_NN database path
@@ -31,7 +31,7 @@ max_concurrent_jobs = params.N_jobs_NN;
 i_job = 1;
 save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 %%
-max_iterations = 2e5;
+max_iterations = 5e3;
 while(i_job<max_iterations)
     if(get_current_running_jobs(jobArgs) < N_jobs_NN)
         params.job_category = params.categories(1+mod(i_job-1,length(params.categories)));
@@ -79,7 +79,10 @@ else
     tic
     [final_db_test,finished_idx,uc_samples] = extract_data_test(dirs.full_localRun_dir,config.JOB_DIRNAME_PREFIX,dirs.job_output_filename,params);
     toc
-    save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction'], '-v7.3');
+    [split_data_loc,num_data_chunks] = split_and_save_data_compare(final_db_test,uc_samples,dirs.full_localRun_dir,config.SPLIT_DIR);
+    % saves all but the variables in the regex
+    save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME],'-regexp','^(?!(final_db_test|uc_samples)$).');
+%     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction'], '-v7.3');
     %%
     plot_stats
 end

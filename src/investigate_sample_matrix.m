@@ -128,7 +128,9 @@ test_size = 1000;
 test_idx = permuted_idx(1:test_size);
 test_final_db = final_db(test_idx); % not to be confused with final_db_test
 test_sample_matrix = sample_matrix(:,test_idx);
-train_size_vec = [100,500,1e3:1e3:(length(final_db)-test_size)];
+% train_size_vec = [100,500,1e3:1e3:(length(final_db)-test_size)];
+train_size_vec = [100,500,1e3,2e3,4e3,8e3,14e3];
+
 if(strcmp(params.caseName,'case24'))
     train_size_vec = [100,300,600,1000,1500,2000,2500,3500,4500,6000];
     case_title = 'IEEE-RTS79';

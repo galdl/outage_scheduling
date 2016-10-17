@@ -1,14 +1,15 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=150; %240
+params.N_jobs_NN=100; %240
 params.compare_solution_times = 1;
-
+%Problem - correlation is very high for all values. My guess: it was classified using too large of a training set. Solution: try to reduce training size
+params.training_set_effective_size=0.3; 
 %% number of samples for building db in each job
 params.N_samples_bdb = 10; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);%1
 %% choose whether to run in n-1 mode
-params.n1_str = 'n1'; %'n1,not-n1'
+params.n1_str = 'not-n1'; %'n1,not-n1'
 %% Outage_scheduling simulation parameters
 params.N_CE=15; %15
 %in case5, 4 months, 75 plans , 2x10 - finished in 40 mins
@@ -99,7 +100,7 @@ params.ng   = size(mpcase.gen, 1);    %% number of dispatchable injections
 %% set up requested outages
 ro = zeros(params.nl,1);
 
-if(strcmp(caseName,'case96') && ~strcmp(params.n1_str,'n1'))
+if(strcmp(caseName,'case96'))
     % if(strcmp(caseName,'case96'))
     %% some changes to make things interesting
     params.mpcase.branch([1;42;80],BR_STATUS)=0;
@@ -114,12 +115,14 @@ if(strcmp(caseName,'case96') && ~strcmp(params.n1_str,'n1'))
     %     params.mpcase.bus(6,BS) = 0;
     %For case96 we choose one area and then choose its outages. Therefore we have 3 columns.
     ro = zeros(120,3);
-    
-    ro(2:5,1)=2;      ro(11,1)=1;      %ro(33)=2;    %ro(40)=2; %
-    ro(43:46,2)=2;    ro(52,2)=1;      %ro(72)=2;    %ro(79)=2; %
-    ro(81:84,3)=2;    ro(90,3)=1;      %ro(110)=2;   %ro(117)=2;%
-    
-    ro(12,1:3)=1;  ro(119,1:3)=1; ro(120,1:3)=1;
+    if(~strcmp(params.n1_str,'n1'))
+        
+        ro(2:5,1)=2;      ro(11,1)=1;      %ro(33)=2;    %ro(40)=2; %
+        ro(43:46,2)=2;    ro(52,2)=1;      %ro(72)=2;    %ro(79)=2; %
+        ro(81:84,3)=2;    ro(90,3)=1;      %ro(110)=2;   %ro(117)=2;%
+        
+        ro(12,1:3)=1;  ro(119,1:3)=1; ro(120,1:3)=1;
+    end
     
 end
 

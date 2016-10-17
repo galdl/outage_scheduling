@@ -1,5 +1,8 @@
 function [NN_uc_sample_vec,NN_uc_sample_rand,NN_distance] = get_uc_NN(final_db,sample_matrix,uc_sample,params)
 KNN = params.KNN;
+%% reduce training set size if required (for experiments)
+final_db = final_db(1:round(length(final_db)*params.training_set_effective_size));
+sample_matrix = sample_matrix(:,1:round(size(sample_matrix,2)*params.training_set_effective_size));
 %%
 % finds the NN in the database
 vec_sample = [uc_sample.line_status(:);uc_sample.windScenario(:);uc_sample.demandScenario(:)];
