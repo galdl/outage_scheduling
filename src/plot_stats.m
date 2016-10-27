@@ -2,14 +2,26 @@
 KNN = params.KNN;
 font_size = 20;
 % KNN = 2;
-final_db_test_b = final_db_test;
-final_db_test(final_db_test(:,1)==0,:)=[];
+if(runOnce)
+    final_db_test_b = final_db_test;
+    runOnce=0;
+    final_db_test(final_db_test(:,1)==0,:)=[];
+    nanLoc = isnan(final_db_test(:,1));
+    final_db_test = final_db_test(~nanLoc,:);
+
+end
+display(['Num of good(non-nan) samples: ', num2str(sum(~nanLoc)), ' which is ', num2str(sum(nanLoc)/length(nanLoc)),' of all samples']);
+
 %% plot KNN stats and decide on label using NN
 
 if(KNN>1)
 %     std_max_vec = [0.01,0.02,0.03,0.04,0.05,0.08,0.1,0.15,0.3,0.5];
 %       std_max_vec = [0.001,0.005,0.01,0.02,0.03,0.04,0.05,0.08,0.1,50];
-      std_max_vec = [0.001,0.05,0.1,0.12,0.15,0.2,0.25,0.35,0.45,1];
+%       std_max_vec = [0,0.01,0.05,0.1,0.12,0.145,0.16,0.185,0.2,0.25,0.35,0.45,1];
+%       std_max_vec = linspace(0,0.55,12);
+%             std_max_vec = [0.1,0.15,0.17,0.18,0.19,0.2,0.25,0.35,0.45,1];
+std_max_vec = [0.001,0.05,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.275,0.3,0.4,0.45,0.5,0.55];
+
 
     xHandles=zeros(length(std_max_vec),1);
     figure(1);
@@ -18,14 +30,14 @@ if(KNN>1)
         KNN_samples = final_db_test(:,4:4+KNN-1);
         NN_std_full = std(KNN_samples,0,2);
         %retain only samples with std below max_std_thresh. Used both for removing nans, and better understaing the plot
-        retain_idx = (NN_std_full<max_std_thresh);
+        retain_idx = (NN_std_full<=max_std_thresh);
         KNN_samples = KNN_samples(retain_idx,:);
         NN_std = NN_std_full(retain_idx);
         NN_mean = mean(KNN_samples,2);
         
         [v,errb_idx] = sort(NN_mean);
         %     last_non_nan = find((isnan(v)),1)-1;
-        xHandles(i_std_max)=subplot(2,5,i_std_max);
+        xHandles(i_std_max)=subplot(2,ceil(length(std_max_vec)/2),i_std_max);
         errorbar(NN_mean(errb_idx),NN_std(errb_idx));
         title(['max std: ',num2str(std_max_vec(i_std_max))]);
     end
@@ -111,40 +123,43 @@ corr_vec = zeros(N_std,1);
 samples_left = zeros(N_std,1);
 xHandles3 = zeros(1,N_std);
 for j=1:N_std
-    retain_idx = (NN_std_full<flip_std_max_vec(j));
+    retain_idx = (NN_std_full<=flip_std_max_vec(j));
     samples_left(j) = length(find(retain_idx))/length(~isnan(final_db_test(:,1)));
     reliability_orig = final_db_test(retain_idx,3);
     reliability_NN = final_db_test(retain_idx,4);
     
-    xHandles3(j) = subplot(2,N_std/2,j);
+    xHandles3(j) = subplot(2,ceil(N_std/2),j);
     reli_dist = sqrt((reliability_orig-reliability_NN).^2);
     %     hist(reli_dist,50);
     scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S);
     title(['max std: ',num2str(flip_std_max_vec(j))],'FontSize', font_size);
     set(gca,'fontsize',font_size)
 
-    if(~isempty(reliability_orig))
+    if(~isempty(reliability_orig) && sum(reliability_orig)>0)
         [r,p]=corr(reliability_orig,reliability_NN);
         corr_vec(j)=r;
+    else 
+        corr_vec(j)=[];
+        samples_left(j)=[];
     end
     xlim([0,1]);
     ylim([0,1]);
 end
 
-figure(66);
-plot_idx = [1,3,5,7,9,10];
-for j=1:length(plot_idx)
-    retain_idx = (NN_std_full<flip_std_max_vec(plot_idx(j)));
-    reliability_orig = final_db_test(retain_idx,3);
-    reliability_NN = final_db_test(retain_idx,4);
-    
-    subplot(2,3,j);
-    scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S);
-    title(['max std: ',num2str(flip_std_max_vec(j))],'FontSize', font_size);
-    set(gca,'fontsize',font_size)
-    xlim([0,1]);
-    ylim([0,1]);
-end
+% figure(66);
+% plot_idx = [1,3,5,7,9,10];
+% for j=1:length(plot_idx)
+%     retain_idx = (NN_std_full<flip_std_max_vec(plot_idx(j)));
+%     reliability_orig = final_db_test(retain_idx,3);
+%     reliability_NN = final_db_test(retain_idx,4);
+%     
+%     subplot(2,3,j);
+%     scatter(reliability_orig+Z*randn(size(reliability_orig)),reliability_NN+Z*randn(size(reliability_orig)),S);
+%     title(['max std: ',num2str(flip_std_max_vec(j))],'FontSize', font_size);
+%     set(gca,'fontsize',font_size)
+%     xlim([0,1]);
+%     ylim([0,1]);
+% end
 %% plot heat map of correlation and std 
 figure(77);
 font_size=20;
@@ -173,18 +188,25 @@ set(gca,'fontsize',font_size);
     %%
 
 figure(7);
+font_size_bigger = 28;
 subplot(211);
 plot(corr_vec);
-title('Correlation as a function of max NN std filter','FontSize', font_size);
-xlabel('Number of nearest-neighbors to filter by', 'FontSize', font_size)
-ylabel('Correlation coefficient', 'FontSize', font_size)
-set(gca,'fontsize',font_size);
+title('Correlation','FontSize', font_size_bigger);
+xlabel('Confidence level', 'FontSize', font_size_bigger)
+ylabel('Correlation coefficient', 'FontSize', font_size_bigger)
+set(gca,'fontsize',font_size_bigger);
+xlim([1,length(samples_left)]);
+
 subplot(212);
+% visual fix
+samples_left = min(samples_left,1-1e-2);
 plot(samples_left);
-title('Remaining samples as a function of max NN std filter','FontSize', font_size);
-xlabel('Number of nearest-neighbors to filter by', 'FontSize', font_size)
-ylabel('Remaining samples after fliter (fraction of full data-set)', 'FontSize', font_size)
-set(gca,'fontsize',font_size);
+title('Remaining test set size','FontSize', font_size_bigger);
+xlabel('Confidence level', 'FontSize', font_size_bigger)
+ylabel('Remaining fraction of test set', 'FontSize', font_size_bigger)
+set(gca,'fontsize',font_size_bigger);
+xlim([1,length(samples_left)]);
+
 % linkaxes(xHandles3,'xy');
 
 

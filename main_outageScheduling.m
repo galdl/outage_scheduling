@@ -176,7 +176,7 @@ if(strcmp(run_mode,'optimize'))
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 else
     %% generate solutions for assesment
-    generate_new_plans = 0;
+    generate_new_plans = 1;
     if(generate_new_plans)
         N_plans=10;
         X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);

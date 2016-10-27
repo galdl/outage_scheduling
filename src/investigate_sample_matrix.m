@@ -1,4 +1,4 @@
-%% how many failed solutions
+%% how many failed solutions -- remember to begin by setting params.training_set_effective_size = 1 !!
 first_row = sample_matrix(1,:);
 sum(isnan(first_row))/length(first_row)
 sample_matrix_b = sample_matrix;
@@ -141,19 +141,34 @@ relative_error_vec = zeros(length(train_size_vec),2);
 correlation_vec = zeros(length(train_size_vec),1);
 average_NN_distance_vec = zeros(length(train_size_vec),1);
 
+runOnce=1;
+lastSize = length(train_size_vec);
 for i_size = 1:length(train_size_vec) 
-    train_idx = permuted_idx(test_size+1:test_size+1+train_size_vec(i_size));
-    train_final_db = final_db(train_idx);
-    train_sample_matrix = sample_matrix(:,train_idx);
-    [relative_error,correlation,average_NN_distance] = compute_regression_error(train_final_db,train_sample_matrix,test_final_db,params,false,case_title);
-    relative_error_vec(i_size,:) = relative_error;
-    correlation_vec(i_size) = correlation;
-    average_NN_distance_vec(i_size) = average_NN_distance;
+    try
+        train_idx = permuted_idx(test_size+1:test_size+1+train_size_vec(i_size));
+        train_final_db = final_db(train_idx);
+        train_sample_matrix = sample_matrix(:,train_idx);
+        [relative_error,correlation,average_NN_distance] = compute_regression_error(train_final_db,train_sample_matrix,test_final_db,params,false,case_title);
+        relative_error_vec(i_size,:) = relative_error;
+        correlation_vec(i_size) = correlation;
+        average_NN_distance_vec(i_size) = average_NN_distance;
+    catch
+        if(runOnce)
+            runOnce=0;
+            lastSize=i_size;
+        end
+    end
 end
 %% plot as a function of train set size
 font_size=17;
 figure;
 xHandles(1)=subplot(3,1,1);
+
+train_size_vec = train_size_vec(1:lastSize);
+relative_error_vec = relative_error_vec(1:lastSize,:);
+correlation_vec = correlation_vec(1:lastSize);
+average_NN_distance_vec  = average_NN_distance_vec(1:lastSize);
+
 errorbar(train_size_vec,relative_error_vec(:,1),relative_error_vec(:,2));
 title([case_title,' - average relative error as function train set size'],'FontSize', font_size);
 set(gca,'fontsize',font_size);

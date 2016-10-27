@@ -1,9 +1,9 @@
 %% Parameters configuration file for the test-cases, algorithm, distributions and simulation
 %% UC_NN simulation parameters
-params.N_jobs_NN=100; %240
+params.N_jobs_NN=150; %240
 params.compare_solution_times = 1;
 %Problem - correlation is very high for all values. My guess: it was classified using too large of a training set. Solution: try to reduce training size
-params.training_set_effective_size=0.3; 
+params.training_set_effective_size=1; %0.05 - mainly for the reliability std test 
 %% number of samples for building db in each job
 params.N_samples_bdb = 10; %400
 %% num samples for testing in each job
@@ -31,7 +31,7 @@ params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenari
 params.myopicUCForecast=0;
 params.dropUpDownConstraints=0; %1
 params.SU_cost = 1;
-params.use_NN_UC = true; %true,false
+params.use_NN_UC = false; %true,false
 %if false - success rate will be simply the rate of success
 %if true - success rate will be computed as the portion of N-1 list that is
 %recoverable, averaged over the 24-hours (increases complexity by a factor

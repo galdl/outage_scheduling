@@ -38,7 +38,7 @@ for j=1:N_test
     %% after building a new data-base with the warm_start option, this will be replaced with an immediate stored value
     if(params.compare_solution_times)
         uc_sample_nn = NN_uc_sample_vec{1};
-        uc_sample_nn = run_UC(params.n1_str , state , uc_sample_nn.demandScenario , uc_sample_nn.windScenario , uc_sample_nn.line_status, params);
+%         uc_sample_nn = run_UC(params.n1_str , state , uc_sample_nn.demandScenario , uc_sample_nn.windScenario , uc_sample_nn.line_status, params);
         params.warm_start = uc_sample_nn.warm_start;
     end
     %% generate exact solution
