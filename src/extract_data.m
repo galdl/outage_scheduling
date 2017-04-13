@@ -9,7 +9,7 @@ finished_idx = [];
 sample_matrix=nan(calculate_sample_matrix_size(params,N_jobs));
 final_db = cell(size(sample_matrix,2),1);
 
-
+% N_jobs = 40;
         
 for i_job=1:N_jobs
     try
@@ -26,6 +26,7 @@ for i_job=1:N_jobs
                         outputFileName = outputFileName(1:end-4);
                     end
                     %
+                    i_job
                     if(strcmp(outputFileName,job_output_filename))
                         loaded_file = load([fileList.path,'/',outputFileName]);
                         sdb=loaded_file.sample_db;

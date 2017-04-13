@@ -3,24 +3,29 @@
 [x,y] = generate_sample_set_from_db(final_db,sample_matrix);
 
 %generate J^2 pairs
-sigmas = linspace(0.011,0.016,7);
-sigmas = 0.0127; %cross validation is done by choosing the most variant solution
+sigmas = linspace(0.1,0.2,3);
+% sigmas = max(abs(y_pairs(1,:)-y_pairs(2,:)));
+
+% sigmas = 0.0127; %cross validation is done by choosing the most variant solution
+% sigmas = 0.1;
 Q=[];
 
-J = 100;
-[x_pairs_raw,y_pairs_raw] = generate_pairs(x,y,J);
+J = 30;
+% [x_pairs_raw,y_pairs_raw] = generate_pairs(x,y,J);
+[x_pairs_raw,y_pairs_raw] = generate_pairs_uniform(x,y,J);
+
 x_pairs = (x_pairs_raw - repmat(mean(x_pairs_raw,2),[1,size(x_pairs_raw,2)]))./repmat(std(x_pairs_raw,[],2),[1,size(x_pairs_raw,2)]);
 y_pairs = (y_pairs_raw - repmat(mean(y_pairs_raw,2),[1,length(y_pairs_raw)]))./repmat(std(y_pairs_raw,[],2),[1,length(y_pairs_raw)]);
 % x_pairs = x_pairs(1:38,:,:);
 m = size(x_pairs,1);
 N = length(y_pairs);
-% sigma = max(abs(y_pairs(1,:)-y_pairs(2,:)));
 for k=1:length(sigmas)
-
     sigma = sigmas(k);
     coeff = exp(-(y_pairs(1,:)-y_pairs(2,:)).^2/(sigma^2));
     c_full = (x_pairs(:,:,1)-x_pairs(:,:,2)).^2*coeff';
     idx_nonz = (~isnan(c_full));
+%     idx_nonz = (c_full ~= 0);
+
     c = c_full(idx_nonz);
     % obj = @(q) (sum(coeff.*sum(repmat(q.^2,[1,N]).*(x_pairs(:,:,1)-x_pairs(:,:,2)).^2,1)));
     ub =[];
@@ -36,7 +41,7 @@ for k=1:length(sigmas)
 %     q_learned = fmincon(obj,q0,[],[],[],[],[],[],[],options);
     Q=[Q,q_learned];
 end
-
+std(Q)
 
 q_learned_b = q_learned;
 %% test if makes sense

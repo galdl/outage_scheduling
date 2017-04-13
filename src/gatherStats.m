@@ -13,7 +13,7 @@ for i_iter=1:N_iter
             mat(:,:,i_iter)=mat(:,:,i_iter)+bestPlanVec{i_iter}{1,i_plan};
         end
     end
-    mat(:,:,i_iter)=mat(:,:,i_iter)./repmat(sum(mat(:,:,i_iter),1),planSize(1),1);
+%     mat(:,:,i_iter)=mat(:,:,i_iter)./repmat(sum(mat(:,:,i_iter),1),planSize(1),1);
 end
 mat
 

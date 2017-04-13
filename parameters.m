@@ -5,7 +5,7 @@ params.compare_solution_times = 1;
 %Problem - correlation is very high for all values. My guess: it was classified using too large of a training set. Solution: try to reduce training size
 params.training_set_effective_size=1; %0.05 - mainly for the reliability std test 
 %% number of samples for building db in each job
-params.N_samples_bdb = 10; %400
+params.N_samples_bdb = 1; %400
 %% num samples for testing in each job
 params.N_samples_test = ceil(params.N_samples_bdb/8);%1
 %% choose whether to run in n-1 mode
@@ -26,12 +26,12 @@ if(strcmp(config.program_name,'optimize'))
 else %compare mode
     params.dynamicSamplesPerDay=3; %5
 end
-params.N_plans=150; %75
+params.N_plans=17*4; %75
 params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
 params.myopicUCForecast=0;
 params.dropUpDownConstraints=0; %1
 params.SU_cost = 1;
-params.use_NN_UC = false; %true,false
+params.use_NN_UC = true; %true,false
 %if false - success rate will be simply the rate of success
 %if true - success rate will be computed as the portion of N-1 list that is
 %recoverable, averaged over the 24-hours (increases complexity by a factor
@@ -139,12 +139,12 @@ if(strcmp(caseName,'case24'))
     params.mpcase.bus(6,BS) = 0;
     params.mpcase.branch(1,RATE_A)=1e-9;
     params.mpcase.branch([24;27],RATE_A)=250;
-    if(~strcmp(params.n1_str,'n1'))
+%     if(~strcmp(params.n1_str,'n1'))
         ro(2:5)=2;   ro(11)=1; ro(25)=2;    ro(26)=2; %r(31)=2; r(38)=2;      
         %     if(strcmp(config.program_name,'compare')) %add some
         %
         %     end
-    end
+%     end
 end
 if(strcmp(caseName,'case5'))
     ro(1)=2; ro(3)=1; ro(6)=1;

@@ -5,7 +5,7 @@ run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
 run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
-caseName = 'case24'; %case5,case9,case14,case24
+caseName = 'case96'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program
@@ -23,7 +23,7 @@ if(strcmp(caseName,'case24'))
         db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-24-12-33-44--4--case24',...
             '/optimize_saved_run'];
     else
-        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-09-05-16-38-12--1--case24',...
+        db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-10-25-14-45-05--4--case24',...
             '/optimize_saved_run'];
     end
 end
@@ -43,10 +43,10 @@ pause(3);
 if(strcmp(run_mode,'optimize'))
     
     %% meta-optimizer initialized
-    timeOutLimit=60*pauseDuration*20;
+    timeOutLimit=60*pauseDuration*1;
     rho = 0.2;
     N_plans=params.N_plans;
-    maxConcurrentJobs=105;
+    maxConcurrentJobs=17*12;
     jobsPerIteration=N_plans*params.numOfMonths;
     maxConcurrentPlans=ceil(maxConcurrentJobs/params.numOfMonths);
     N_CE_inner=ceil(jobsPerIteration/maxConcurrentJobs);
@@ -56,6 +56,11 @@ if(strcmp(run_mode,'optimize'))
     bestPlanVecTemp = cell(9,N_plans,params.N_CE);
     i_CE=1;
     
+    %% generate DA scenarios that are shared across all iterations and plans
+    params_with_DA_scenarios = cell(params.numOfMonths,1);
+    for i_month=1:params.numOfMonths
+        params_with_DA_scenarios{i_month} = generate_shared_DA_scenarios(params,i_month);
+    end    
     %% optimization iterations - each w/ multiple solutions (m.plans)
     while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
         try
@@ -72,14 +77,10 @@ if(strcmp(run_mode,'optimize'))
             previousIterationsJobs=0;
             for i_CE_inner=1:N_CE_inner
                 innerPlanRange=(i_CE_inner-1)*maxConcurrentPlans+1:min(i_CE_inner*maxConcurrentPlans,N_plans);
-                params_with_DA_scenarios = cell(params.numOfMonths,1);
                 for i_plan=innerPlanRange
                     [localPlanDir,remotePlanDir]=...
                         perparePlanDir(localIterDir,remoteIterDir,i_plan,config.PLAN_DIRNAME_PREFIX);
                     for i_month=1:params.numOfMonths
-                        if(i_plan == 1) % generate only once, for the scenarios to be shared across plans
-                            params_with_DA_scenarios{i_month} = generate_shared_DA_scenarios(params,i_month);
-                        end
                         [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios{i_month},config);
                         [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,i_CE,remotePlanDir,jobArgs,argContentFilename);
                         sendJob('simulateMonth_job',funcArgs,jobArgs,config);
@@ -116,8 +117,11 @@ if(strcmp(run_mode,'optimize'))
             end
             %% calculate objective values
             K=2;
+            lostLoad_values = 1- lostLoad/max(lostLoad);
             success_rate_barrier_values = K*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
-            objective_values = planValues + success_rate_barrier_values;
+            lostLoad_barrier_values = K*success_rate_barrier(lostLoad_values,barrier_struct,params.alpha,i_CE);
+
+            objective_values = planValues + success_rate_barrier_values + lostLoad_barrier_values;
             [S_sorted_includingNan,I] = sort(objective_values);
             S_sorted=S_sorted_includingNan(~isnan(S_sorted_includingNan));
             %% save min,mean,median,max, and best plans along iterations
@@ -174,7 +178,7 @@ if(strcmp(run_mode,'optimize'))
         title(titles{i_plot});
     end
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
-else
+else %compare
     %% generate solutions for assesment
     generate_new_plans = 1;
     if(generate_new_plans)
@@ -182,13 +186,17 @@ else
         X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
         mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
-        save('mPlanBatch','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
+% %DEBUG: (remove afterwards)
+%         for k=1:N_plans
+%             mPlanBatch(:,:,k) = zeros(size(mPlanBatch(:,:,1)));
+%         end
+        save('mPlanBatch96','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
     else
         %% load mPlanBatch
         %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
         %     new_plans = [2,3,4,6,7,9:19];
         %     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
-        load('mPlanBatch');
+        load('mPlanBatch96');
     end
     %% send assessment jobs
     params_with_DA_scenarios = cell(params.numOfMonths,1);

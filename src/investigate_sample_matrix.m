@@ -1,4 +1,5 @@
 %% how many failed solutions -- remember to begin by setting params.training_set_effective_size = 1 !!
+params.training_set_effective_size = 1;
 first_row = sample_matrix(1,:);
 sum(isnan(first_row))/length(first_row)
 sample_matrix_b = sample_matrix;
@@ -12,7 +13,7 @@ final_db_b = final_db;
 final_db(find(isnan(first_row)))=[];
 
 no_success = [];
-for i_sample = 1:length(final_db)
+for i_sample = length(final_db)
     if(~final_db{i_sample}.success)
         no_success = [no_success,i_sample];
     end
@@ -169,12 +170,14 @@ relative_error_vec = relative_error_vec(1:lastSize,:);
 correlation_vec = correlation_vec(1:lastSize);
 average_NN_distance_vec  = average_NN_distance_vec(1:lastSize);
 
-errorbar(train_size_vec,relative_error_vec(:,1),relative_error_vec(:,2));
+lowErrors = min(relative_error_vec(:,1),relative_error_vec(:,2)-0.01);
+errorbar(train_size_vec,relative_error_vec(:,1),lowErrors,relative_error_vec(:,2));
 title([case_title,' - average relative error as function train set size'],'FontSize', font_size);
 set(gca,'fontsize',font_size);
 xlim([0,train_size_vec(end)+200]);
 xlabel('Train set size');
 ylabel('Average relative error');
+ylim([-0.05,2]);
 
 xHandles(2)=subplot(3,1,2);
 plot(train_size_vec,correlation_vec);

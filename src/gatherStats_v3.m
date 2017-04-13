@@ -112,7 +112,7 @@ for i_iter=1:N_iter
     end
     %     mat(:,:,i_iter)=min(1,mat(:,:,i_iter)./repmat(max(sum(mat(:,:,i_iter),1),epsilon),planSize(1),1));
     mat(:,:,i_iter)=mat(:,:,i_iter)./(N_plans(i_iter)*ones(planSize));
-    ax(i_iter)=subplot(2,5,i_iter);
+    ax(i_iter)=subplot(3,5,i_iter);
     imagesc(mat(find(params.requested_outages),:,i_iter));
     colormap('gray')
     colormap(flipud(colormap)); caxis([0,1]);

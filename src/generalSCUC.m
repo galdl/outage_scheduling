@@ -180,8 +180,11 @@ for k = 1:horizon
     [lineStatus_OS] = getFixedLineStatus(currHour,dynamicUC,params,state);
 %     currBranch(:,BR_STATUS)=lineStatus_OS;
     currBranch(logical(1-lineStatus_OS),RATE_A)=rate_a_limit;
-
     %% N-1 criterion - N(=nl) possible single line outage
+    %debuggnin to try and get N-1 to work when several outages
+%     skipSet = 1:28; %28 seems to create trouble
+%     N_contingencies=30;
+    skipSet = [];
     for i_branch = 1:N_contingencies+1
         newMpcase=mpc;
         newMpcase.bus=bus;
@@ -191,6 +194,10 @@ for k = 1:horizon
             %for i_branc==2, 1st contingency, etc..
             newMpcase.branch(i_branch-1,BR_STATUS)=0;
             newMpcase.branch(i_branch-1,RATE_A)=rate_a_limit;
+%             newMpcase.branch(i_branch-1,:)=[];
+            if(~checkConnectivity(newMpcase,params) || sum(skipSet==i_branch)>0)
+                continue;
+            end
         end
         if(sum(newMpcase.branch(:,BR_STATUS))==0)
             Pg=zeros(size((Pg)));
