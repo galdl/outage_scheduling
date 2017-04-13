@@ -4,7 +4,7 @@ fontSize=15; %10
 fontSizeAxes=15; %10
 opacity=0.12;
 sz = [4,6];
-close all;
+% close all;
 for i_plan = 1:N_plans
     %     i_fig = 1+mod(i_plan-1,4);
     if(mod(i_plan,sz(1))==1)
@@ -25,7 +25,7 @@ for i_plan = 1:N_plans
     set(gca,'fontsize',fontSizeAxes );
     %     title('Monthly operational cost (deduced lost load) comparison','FontSize', 17);
     xlabel('Month', 'FontSize', fontSize)
-    ylabel('Operational cost[$]', 'FontSize', fontSize)
+    ylabel('Operational cost [$]', 'FontSize', fontSize)
     
     %% success rates
     i_row = 2;
@@ -99,10 +99,10 @@ for i_plan = 1:N_plans
     set(gca,'fontsize',fontSizeAxes );
     %     title('Monthly lost load comparison','FontSize', 17);
     xlabel('Month', 'FontSize', fontSize)
-    ylabel('DA Lost load', 'FontSize', fontSize)
+    ylabel('Overall costs [$]', 'FontSize', fontSize)
 end
 %% show comparison between no-outage to a single (or two) plans
-show = 0;
+show = 1;
 if(show)
     figure;
     i_plan_compare = 5;
@@ -168,7 +168,7 @@ if(show)
     % set(gca,'ytick',[])
     xlabel('Month', 'FontSize', fontSize)
     ylabel('Asset Index', 'FontSize', fontSize)
-    title(['Visualization of outage plan ',num2str(plan_legend)]);
+    title(['Visualization of outage plan ',num2str(i_plan_compare)]);
     % colorbar;
 end
 
