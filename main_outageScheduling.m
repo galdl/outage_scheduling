@@ -81,7 +81,8 @@ if(strcmp(run_mode,'optimize'))
                     [localPlanDir,remotePlanDir]=...
                         perparePlanDir(localIterDir,remoteIterDir,i_plan,config.PLAN_DIRNAME_PREFIX);
                     for i_month=1:params.numOfMonths
-                        [argContentFilename] = write_job_contents(localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios{i_month},config);
+                        [argContentFilename] = write_job_contents ...
+                            (localPlanDir,remotePlanDir,i_month,mPlanBatch(:,:,i_plan),db_file_path,params_with_DA_scenarios{i_month},config);
                         [funcArgs,jobArgs]=prepere_for_sendJob(i_plan,i_month,i_CE,remotePlanDir,jobArgs,argContentFilename);
                         sendJob('simulateMonth_job',funcArgs,jobArgs,config);
                     end
@@ -193,7 +194,8 @@ else %compare
         save('mPlanBatch96','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
     else
         %% load mPlanBatch
-        %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
+        %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare ...
+        %/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
         %     new_plans = [2,3,4,6,7,9:19];
         %     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
         load('mPlanBatch96');
@@ -224,8 +226,8 @@ else %compare
     display([num2str(timeOutCounter),' seconds passed. ','Num of finished files: ',num2str(numFinishedFiles)]);
     deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
     %% extract their values
-    [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA] = ...
-        extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
+    [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values ...
+        ,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA] = extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
     plot_outage_compare
 end

@@ -4,7 +4,7 @@ get_global_constants
 line_status = (rand(params.nl,1)>0.5); %uniform failure probability. not changing the actual parameter since we still want params.failure_probability to be low
 num_of_zones = size(params.requested_outages,2);
 outage_zone = randsample(num_of_zones,1);
-no_outage_zone = setdiff(1:num_of_zones,outage_zone);
+%no_outage_zone = setdiff(1:num_of_zones,outage_zone);
 %% keep only the contingencies that are relevant for the needed outages
 % if(sum(params.requested_outages)>0)
     possible_outages = (params.requested_outages>0);
