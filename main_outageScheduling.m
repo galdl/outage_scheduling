@@ -53,7 +53,7 @@ if(strcmp(run_mode,'optimize'))
     
     solutionStats=zeros(params.N_CE,4);
     bestPlanVec = cell(params.N_CE,1);
-    bestPlanVecTemp = cell(9,N_plans,params.N_CE);
+    bestPlanVecTemp = cell(11,N_plans,params.N_CE);
     i_CE=1;
     
     %% generate DA scenarios that are shared across all iterations and plans
@@ -145,6 +145,8 @@ if(strcmp(run_mode,'optimize'))
                 bestPlanVecTemp{7,j_plan,i_CE}  = success_rate_barrier_values(I(j_plan));
                 bestPlanVecTemp{8,j_plan,i_CE}  = success_rate_values(I(j_plan));
                 bestPlanVecTemp{9,j_plan,i_CE}  = relative_nn_std_values{I(j_plan)};
+                bestPlanVecTemp{10,j_plan,i_CE}  = lostLoad_barrier_values(I(j_plan));
+                bestPlanVecTemp{11,j_plan,i_CE}  = objective_values(I(j_plan));
             end
             bestPlanVec{i_CE}=bestPlanVecTemp(:,1:length(S_sorted),i_CE);
             p'

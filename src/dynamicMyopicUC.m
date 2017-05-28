@@ -1,4 +1,4 @@
-function [totalObjective,finalOnoff,deviationCost,deviationTime,state,escalateLevelVec,allContingenciesHappened,totalWindSpilled,totalLoadLost,success_rate,lostLoad_percentage] = ...
+function [totalObjective,finalOnoff,deviationCost,deviationTime,state,escalateLevelVec,allContingenciesHappened,totalWindSpilled,totalLoadLost,success_rate,lostLoad_percentage,lostLoad_matrix] = ...
     dynamicMyopicUC(originalPg,originalOnoff,params,state)
 %% initialization
 deviate=0;
@@ -16,6 +16,7 @@ dynamicUCParams.enforceOnoff=1;
 escalateLevelVec=zeros(params.horizon,1);
 totalWindSpilled=0;
 totalLoadLost=0;
+lostLoad_matrix = 0;
 loadLost=0;
 lostLoad_percentage = zeros(params.horizon,1);
 success_rate = 0;
@@ -57,6 +58,7 @@ for k=1:params.horizon
     %escalateLevelVec(k)=escalateLevel; obsolete
     totalWindSpilled=totalWindSpilled+sum(sum(windSpilled));
     totalLoadLost=totalLoadLost+sum(sum(loadLost));
+    lostLoad_matrix = lostLoad_matrix + loadLost;
     finalOnoff(:,k)=onoff;
     finalPg(:,k) = Pg;
     finalWindSpilled(:,k) = windSpilled;

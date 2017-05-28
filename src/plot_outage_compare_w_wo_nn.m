@@ -22,7 +22,7 @@ for i_plan = 2:5
     i_row = 1;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
-    %% monthly cost fill plots
+    %% RT operational costs except LS
     %     set(gcf,'name','Compare operational costs (deduced lost load) -  no outages and outage plan 1','numbertitle','off')
     plotFill(monthlyCost(1,:,1),monthlyCost(1,:,2),'r',opacity);
     hold on;
@@ -35,7 +35,7 @@ for i_plan = 2:5
     xlabel('Month', 'FontSize', fontSize)
     ylabel('Operational cost [$]', 'FontSize', fontSize)
     
-    %% success rates
+    %%  actual RT success rates
     i_row = 2;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
@@ -52,7 +52,7 @@ for i_plan = 2:5
     xlabel('Month', 'FontSize', fontSize)
     ylabel('Sucess rate', 'FontSize', fontSize)
     
-    %% lost load
+    %% only RT lost load
     i_row = 3;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
@@ -67,7 +67,7 @@ for i_plan = 2:5
     %     title('Monthly lost load comparison','FontSize', 17);
     xlabel('Month', 'FontSize', fontSize)
     ylabel('Lost load', 'FontSize', fontSize)
-    %% cost  - DA
+    %% DA operational costs except LS
     i_row = 4;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
@@ -82,7 +82,7 @@ for i_plan = 2:5
     %     title('Monthly lost load comparison','FontSize', 17);
     xlabel('Month', 'FontSize', fontSize)
     ylabel('DA Cost', 'FontSize', fontSize)
-    %% lost load - DA
+    %% DA lost load 
     i_row = 5;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
@@ -97,7 +97,7 @@ for i_plan = 2:5
     %     title('Monthly lost load comparison','FontSize', 17);
     xlabel('Month', 'FontSize', fontSize)
     ylabel('DA Lost load', 'FontSize', fontSize)
-    %% overall costs - most important
+    %% overall costs: all DA and RT costs including LS
     i_row = 6;
     loc = sub2ind(sz,i_column,i_row);
     subplot(sz(2),sz(1),loc);
@@ -105,6 +105,9 @@ for i_plan = 2:5
     plotFill(monthlyCost_DA(1,:,1)+monthlyCost(1,:,1)+(monthly_lost_load(1,:,1)+monthly_lost_load_DA(1,:,1))*params.VOLL,...
         monthlyCost_DA(1,:,2)+monthlyCost(1,:,2)+(monthly_lost_load(1,:,2)++monthly_lost_load_DA(1,:,2))*params.VOLL,'r',opacity);
     hold on;
+    % monthlyCost_DA (DA objective - DA lost load*VOLL) + monthlyCost (RT
+    % objective - RT lost load*VOLL) + overall lost load cost (DA plus RT
+    % lost load * VOLL)
     plotFill(monthlyCost_DA(i_plan,:,1)+monthlyCost(i_plan,:,1)+(monthly_lost_load(i_plan,:,1)+monthly_lost_load_DA(i_plan,:,1))*params.VOLL,...
        monthlyCost_DA(i_plan,:,2)+monthlyCost(i_plan,:,2)+(monthly_lost_load(i_plan,:,2)+monthly_lost_load_DA(i_plan,:,2))*params.VOLL,'b',opacity);
    plotFill(monthlyCost_DA_nn(i_plan,:,1)+monthlyCost_nn(i_plan,:,1)+(monthly_lost_load_nn(i_plan,:,1)+monthly_lost_load_DA_nn(i_plan,:,1))*params.VOLL,...
