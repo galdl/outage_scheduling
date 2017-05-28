@@ -22,7 +22,7 @@ params.N_CE=15; %15
 params.numOfDaysPerMonth=3; %3. currently 1 since there is no difference between them in any case
 if(strcmp(config.program_name,'optimize'))
     %reduced to three since currently we draw very little contingencies, and reduced the rand_walk_w_std,rand_walk_d_std values
-    params.dynamicSamplesPerDay=3; %3
+    params.dynamicSamplesPerDay=2; %3
 else %compare mode
     params.dynamicSamplesPerDay=3; %5
 end
@@ -38,7 +38,7 @@ params.use_NN_UC = true; %true,false
 %of params.nl, per each day of simulation)
 params.n1_success_rate = true;
 if(strcmp('case96',params.caseName))
-    params.reliability_percentageTolerance = 50;
+    params.reliability_percentageTolerance = 80;
 end
 if(strcmp('case24',params.caseName))
     params.reliability_percentageTolerance = 50;
@@ -105,14 +105,15 @@ if(strcmp(caseName,'case96'))
     %% some changes to make things interesting
     params.mpcase.branch([1;42;80],BR_STATUS)=0;
     params.mpcase.branch([1;42;80],RATE_A)=0;
+    %These turned out to be over-restrictive
     
-    bus_change_local = [1,2]; bus_change = [bus_change_local,bus_change_local+24,bus_change_local+24*2];
-    for b=bus_change
-        params.mpcase.bus(b+2,[PD,QD])=params.mpcase.bus(b,[PD,QD])+params.mpcase.bus(b+2,[PD,QD]);
-        params.mpcase.bus(b,[PD,QD])=0;
-    end
-    %     params.mpcase.bus(10,BS) = params.mpcase.bus(6,BS);
-    %     params.mpcase.bus(6,BS) = 0;
+%      bus_change_local = [1,2]; bus_change = [bus_change_local,bus_change_local+24,bus_change_local+24*2];
+%      for b=bus_change
+%          params.mpcase.bus(b+2,[PD,QD])=params.mpcase.bus(b,[PD,QD])+params.mpcase.bus(b+2,[PD,QD]);
+%          params.mpcase.bus(b,[PD,QD])=0;
+%      end
+%          params.mpcase.bus(10,BS) = params.mpcase.bus(6,BS);
+%          params.mpcase.bus(6,BS) = 0;
     %For case96 we choose one area and then choose its outages. Therefore we have 3 columns.
     ro = zeros(120,3);
     if(~strcmp(params.n1_str,'n1'))
@@ -157,7 +158,7 @@ params.windBuses = caseParams.windBuses;
 params.windHourlyForcast = caseParams.windHourlyForcast;
 params.windCurtailmentPrice=100; %[$/MW]
 %% optimization parameters
-params.alpha = 0.05; % success_rate chance-constraint parameter : P['bad event']<alpha
+params.alpha = 0.3; %0.05 % success_rate chance-constraint parameter : P['bad event']<alpha
 %% demand and wind STDs
 params.demandStd = 0.02;
 params.muStdRatio = 0.05;

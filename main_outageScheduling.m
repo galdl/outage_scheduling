@@ -3,7 +3,7 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
-run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
 caseName = 'case96'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
@@ -29,7 +29,9 @@ if(strcmp(caseName,'case24'))
 end
 %% case 96
 if(strcmp(caseName,'case96'))
-    db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-11-15-14-03--1--case96',...
+    %db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2016-08-11-15-14-03--1--case96',...
+    %    '/optimize_saved_run'];
+    db_file_path = ['~/PSCC16_continuation/current_version/output/UC_NN/saved_runs/Optimize/optimize_run_2017-04-21-12-30-48--4--case96',...
         '/optimize_saved_run'];
 end
 %% common initialization to optimize and compare
@@ -43,7 +45,7 @@ pause(3);
 if(strcmp(run_mode,'optimize'))
     
     %% meta-optimizer initialized
-    timeOutLimit=60*pauseDuration*1;
+    timeOutLimit=60*pauseDuration*4;
     rho = 0.2;
     N_plans=params.N_plans;
     maxConcurrentJobs=17*12;
@@ -53,7 +55,7 @@ if(strcmp(run_mode,'optimize'))
     
     solutionStats=zeros(params.N_CE,4);
     bestPlanVec = cell(params.N_CE,1);
-    bestPlanVecTemp = cell(9,N_plans,params.N_CE);
+    bestPlanVecTemp = cell(11,N_plans,params.N_CE);
     i_CE=1;
     
     %% generate DA scenarios that are shared across all iterations and plans
@@ -117,7 +119,7 @@ if(strcmp(run_mode,'optimize'))
                 barrier_struct = calibrate_barrier(planValues);
             end
             %% calculate objective values
-            K=2;
+            K=4;
             lostLoad_values = 1- lostLoad/max(lostLoad);
             success_rate_barrier_values = K*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
             lostLoad_barrier_values = K*success_rate_barrier(lostLoad_values,barrier_struct,params.alpha,i_CE);
@@ -145,6 +147,8 @@ if(strcmp(run_mode,'optimize'))
                 bestPlanVecTemp{7,j_plan,i_CE}  = success_rate_barrier_values(I(j_plan));
                 bestPlanVecTemp{8,j_plan,i_CE}  = success_rate_values(I(j_plan));
                 bestPlanVecTemp{9,j_plan,i_CE}  = relative_nn_std_values{I(j_plan)};
+                bestPlanVecTemp{10,j_plan,i_CE}  = lostLoad_barrier_values(I(j_plan));
+                bestPlanVecTemp{11,j_plan,i_CE}  = objective_values(I(j_plan));
             end
             bestPlanVec{i_CE}=bestPlanVecTemp(:,1:length(S_sorted),i_CE);
             p'
@@ -181,7 +185,7 @@ if(strcmp(run_mode,'optimize'))
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 else %compare
     %% generate solutions for assesment
-    generate_new_plans = 1;
+    generate_new_plans = 0;
     if(generate_new_plans)
         N_plans=10;
         X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);

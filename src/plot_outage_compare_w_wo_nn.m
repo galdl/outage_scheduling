@@ -1,10 +1,12 @@
-% load(return_compare_folder('compare_run_2017-03-26-13-44-32--1--case24')); % NN
-% monthlyCost_nn = monthlyCost;
-% monthly_success_rate_values_nn = monthly_success_rate_values;
-% monthly_lost_load_nn = monthly_lost_load;
-% monthlyCost_DA_nn = monthlyCost_DA;
-% monthly_lost_load_DA_nn = monthly_lost_load_DA;
-% load(return_compare_folder('compare_run_2017-03-26-12-14-27--1--case24')); %no-NN
+% load(return_compare_folder('compare_run_2017-04-25-07-50-07--1--case96')); % NN
+load(return_compare_folder('compare_run_2017-03-26-13-44-32--1--case24')); % NN
+monthlyCost_nn = monthlyCost;
+monthly_success_rate_values_nn = monthly_success_rate_values;
+monthly_lost_load_nn = monthly_lost_load;
+monthlyCost_DA_nn = monthlyCost_DA;
+monthly_lost_load_DA_nn = monthly_lost_load_DA;
+%load(return_compare_folder('compare_run_2017-04-25-00-20-47--1--case96')); %no-NN
+load(return_compare_folder('compare_run_2017-03-26-12-14-27--1--case24')); %no-NN
 %% show comparison between no-outage to all (or two) plans
 
 fontSize=15; %10
