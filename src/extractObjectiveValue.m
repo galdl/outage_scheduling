@@ -1,5 +1,5 @@
-function [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA]...
-    = extractObjectiveValue(iterationDir,N_plans,params,config)
+function [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values,...
+    monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA] = extractObjectiveValue(iterationDir,N_plans,params,config)
 planValues = zeros(N_plans,1);
 success_rate_values = zeros(N_plans,1);
 monthly_success_rate_values = zeros(N_plans,params.numOfMonths,2);

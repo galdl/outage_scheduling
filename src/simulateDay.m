@@ -12,6 +12,7 @@ dailyStats.dynamicLoadLost=[];
 dailyStats.success_rate=[];
 dailyStats.relative_nn_std=[];
 dailyStats.lostLoad_percentage=[];
+dailyStats.lostLoad_matrix=[];
 
 relative_nn_std=[];
 
@@ -58,7 +59,7 @@ for i_sample = 1:params.dynamicSamplesPerDay
         params.demandScenario = demandScenario_RT;
         originalPg = uc_sample_out.Pg;
         originalOnoff = uc_sample_out.onoff;
-        [objective,~,deviationCost,deviationTime,stateCopy,escalateLevelVec,contingenciesHappened,dynamicWindSpilled,dynamicLoadLost,success_rate,lostLoad_percentage] = ...
+        [objective,~,deviationCost,deviationTime,stateCopy,escalateLevelVec,contingenciesHappened,dynamicWindSpilled,dynamicLoadLost,success_rate,lostLoad_percentage,lostLoad_matrix] = ...
             dynamicMyopicUC(originalPg,originalOnoff,params,state);
         if(i_sample==params.dynamicSamplesPerDay) %store the last sample's state for the next day
             state = stateCopy;
@@ -75,6 +76,8 @@ for i_sample = 1:params.dynamicSamplesPerDay
         dailyStats.success_rate=[dailyStats.success_rate,success_rate];
         dailyStats.relative_nn_std=[dailyStats.relative_nn_std,relative_nn_std];
         dailyStats.lostLoad_percentage=[dailyStats.lostLoad_percentage,lostLoad_percentage];
+        dailyStats.lostLoad_matrix= cat(3,dailyStats.lostLoad_matrix,lostLoad_matrix);
+
         
         
     catch ME

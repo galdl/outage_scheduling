@@ -46,16 +46,18 @@ set(gcf,'name','Medians','numbertitle','off')
 figure(11);
 xyHandles = zeros(1,i_CE-1);
 %this is averaged over months (average planValues per month)
+x_min = 1;
 for i_plot=1:i_CE-1
     xyHandles(i_plot) = subplot(4,4,i_plot);
     [n1,x1] = hist(cell2mat(bestPlanVecTemp(8,:,i_plot)),150);
+    x_min = min(x_min,min(x1));
     bar(x1,n1/sum(n1));
     title(num2str(i_plot));
 end
 
 linkaxes(xyHandles,'xy');
-ylim([0,0.07]);
-xlim([0.6,1]);
+ylim([0,0.11]);
+xlim([0,1]);
 
 
 % for j=1:6
