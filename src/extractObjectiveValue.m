@@ -75,8 +75,10 @@ for i_plan=1:N_plans
                 %the base costs (which the system operator doesn't pay anyhow).
                 %We expect this number to be positive, obviously (redispatch
                 %always causes more expanses. curtailment can be smaller though, but it small)
-                planValues(i_plan) = planValues(i_plan) + mean(dynamicObjective); %each summation is a mean daily cost
-                lostLoad(i_plan) = lostLoad(i_plan) + mean(dynamicLoadLost);
+                planValues(i_plan) = planValues(i_plan) + mean(dynamicObjective); %each summation is a mean daily cost of 
+                %operation. Notice that "objective" here is the hourly OPF (hourly UC) objective, which is only one 
+                %component of the whole problem objective
+                lostLoad(i_plan) = lostLoad(i_plan) + mean(dynamicLoadLost); 
                 monthlyCost(i_plan,parsedMonthNum,1) = mean(dynamicObjective - dynamicLoadLost*params.VOLL);
                 monthlyCost(i_plan,parsedMonthNum,2) = std(dynamicObjective - dynamicLoadLost*params.VOLL);
                 
@@ -100,7 +102,7 @@ for i_plan=1:N_plans
             end
             %normalize if partial year (not all month jobs returend)
             planValues(i_plan)=planValues(i_plan)/length(monthFileList);
-            lostLoad(i_plan) = lostLoad(i_plan)/length(monthFileList);
+            lostLoad(i_plan) = lostLoad(i_plan)/length(monthFileList); %ends up to be a daily average (daily values, outputs of dynamicMyopicUC, are the ones averaged)
             success_rate_values(i_plan) = success_rate_values(i_plan)/length(monthFileList);
             %success_rate is a number in [0,1], so no need to normalize it by the number of months.
         end

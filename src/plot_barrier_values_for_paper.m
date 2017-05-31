@@ -1,5 +1,5 @@
 %% initialization
-%close all;
+close all;
 num_of_plots = 3;
 fontSize=15; %10
 fontSizeAxes=15; %10
@@ -21,20 +21,21 @@ for j=1:i_CE-1
             end
         end
     end
-    values(:,j,1) = median([stats{1}-stats{5}*params.VOLL;stats{3};stats{1}+stats{4}],2); 
+    data_to_present = [stats{1}+stats{4};stats{1}-stats{5}*params.VOLL;stats{3}];
+    values(:,j,1) = median(data_to_present,2); 
     %values(:,j,2) = std([stats{1}-stats{5}*params.VOLL;stats{3};stats{1}+stats{4}],[],2); 
-    [values(:,j,2),values(:,j,3)] = calc_percentiles([stats{1}-stats{5}*params.VOLL;stats{3};stats{1}+stats{4}],0.75,0.25);
+    [values(:,j,2),values(:,j,3)] = calc_percentiles(data_to_present,0.75,0.25);
 end
 %% plot graphs
 figure(9);
-titles={'Operational costs (RD,WC)','success rate','Objective values'};
+titles={'Objective values','Oper. costs (RD,WC)','Success rate'};
 %this is averaged over months (average planValues per month)
 for i_plot=1:num_of_plots
     subplot(1,3,i_plot);
     plotFill(values(i_plot,:,1),values(i_plot,:,2),'b',opacity,values(i_plot,:,3));
     set(gca,'fontsize',fontSizeAxes );
     xlabel('Iteration', 'FontSize', fontSize)
-    title(titles{i_plot});
+    title(titles{i_plot},'FontSize',fontSize);
     if(i_plot ~= 2)
         ylabel('USD $', 'FontSize', fontSize)
     end
@@ -53,6 +54,9 @@ for i_plot=1:i_CE-1
     x_min = min(x_min,min(x1));
     bar(x1,n1/sum(n1));
     title(num2str(i_plot));
+    if(i_plot==1)
+        xlabel('Average Sucess Rate', 'FontSize', fontSize)
+    end
 end
 
 linkaxes(xyHandles,'xy');
@@ -81,6 +85,7 @@ for i_iter=1:N_iter
     mat(:,:,i_iter)=mat(:,:,i_iter)./(N_plans(i_iter)*ones(planSize));
     ax(i_iter)=subplot(3,5,i_iter);
     imagesc(mat(find(sum(params.requested_outages,2)),:,i_iter));
+    title(num2str(i_iter),'FontSize',fontSize+4);
 %    imagesc(mat(:,:,i_iter));
     colormap('gray')
     colormap(flipud(colormap)); caxis([0,1]);
