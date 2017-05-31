@@ -3,7 +3,7 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
-run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
 caseName = 'case96'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
@@ -111,15 +111,15 @@ if(strcmp(run_mode,'optimize'))
                 killRemainingJobs(jobArgs);
             end
             deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
-            [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values] = ...
-                extractObjectiveValue(localIterDir,N_plans,params,config);
+            [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,~,...
+              ~,~,~,relative_lostLoad_vector_means] = extractObjectiveValue(localIterDir,N_plans,params,config);
             %         S=planValues(~isnan(planValues));
             %% calibrate the barrier function according to planValues
             if(i_CE==1)
                 barrier_struct = calibrate_barrier(planValues);
             end
             %% calculate objective values
-            K=4;
+            K=2;
             lostLoad_values = 1- lostLoad/max(lostLoad);
             success_rate_barrier_values = K*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
             lostLoad_barrier_values = K*success_rate_barrier(lostLoad_values,barrier_struct,params.alpha,i_CE);
@@ -170,6 +170,10 @@ if(strcmp(run_mode,'optimize'))
         i_CE=i_CE+1;
         save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_partial']);
     end
+    %% output load shedding across buses
+    % per plan: relative_lostLoad_vector =
+    % relative_lostLoad_vector_means(:,i_plan);
+    %[params.mpcase.bus(find(relative_lostLoad_vector>1e-5)),relative_lostLoad_vector(relative_lostLoad_vector>1e-5)]
     %% plot barrier values
     plot_barrier_values
     %% plot objective statistics
@@ -185,12 +189,12 @@ if(strcmp(run_mode,'optimize'))
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 else %compare
     %% generate solutions for assesment
-    generate_new_plans = 0;
+    generate_new_plans = 1;
     if(generate_new_plans)
-        N_plans=10;
+        N_plans=100;
         X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
         mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
-        mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
+        %mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
 % %DEBUG: (remove afterwards)
 %         for k=1:N_plans
 %             mPlanBatch(:,:,k) = zeros(size(mPlanBatch(:,:,1)));
@@ -231,7 +235,7 @@ else %compare
     deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
     %% extract their values
     [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,monthly_success_rate_values ...
-        ,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA] = extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
+        ,monthly_lost_load,monthlyCost_DA,monthly_lost_load_DA,relative_lostLoad_vector_means] = extractObjectiveValue(dirs.full_localRun_dir,N_plans,params,config);
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME,'_post_extraction']);
     plot_outage_compare
 end

@@ -1,5 +1,5 @@
-function [totalObjective,finalOnoff,deviationCost,deviationTime,state,escalateLevelVec,allContingenciesHappened,totalWindSpilled,totalLoadLost,success_rate,lostLoad_percentage,lostLoad_matrix] = ...
-    dynamicMyopicUC(originalPg,originalOnoff,params,state)
+function [totalObjective,finalOnoff,deviationCost,deviationTime,state,escalateLevelVec,allContingenciesHappened,totalWindSpilled,...
+    totalLoadLost,success_rate,lostLoad_percentage,relative_lostLoad_vector] = dynamicMyopicUC(originalPg,originalOnoff,params,state)
 %% initialization
 deviate=0;
 k=1;
@@ -16,7 +16,7 @@ dynamicUCParams.enforceOnoff=1;
 escalateLevelVec=zeros(params.horizon,1);
 totalWindSpilled=0;
 totalLoadLost=0;
-lostLoad_matrix = 0;
+relative_lostLoad_vector = 0;
 loadLost=0;
 lostLoad_percentage = zeros(params.horizon,1);
 success_rate = 0;
@@ -58,7 +58,7 @@ for k=1:params.horizon
     %escalateLevelVec(k)=escalateLevel; obsolete
     totalWindSpilled=totalWindSpilled+sum(sum(windSpilled));
     totalLoadLost=totalLoadLost+sum(sum(loadLost));
-    lostLoad_matrix = lostLoad_matrix + loadLost;
+    relative_lostLoad_vector = relative_lostLoad_vector + loadLost./max(1e-5,(params.demandScenario(:,k) - (params.windScenario(:,k) - windSpilled)));
     finalOnoff(:,k)=onoff;
     finalPg(:,k) = Pg;
     finalWindSpilled(:,k) = windSpilled;
@@ -70,6 +70,7 @@ for k=1:params.horizon
     deviationCost = deviationCost + pgDeviationCost(originalPg(:,k),originalOnoff(:,k),Pg,[],params); 
     state.initialGeneratorState = getInitialGeneratorState_oneStep(onoff,state.initialGeneratorState,params);
 end
+relative_lostLoad_vector = relative_lostLoad_vector/params.horizon;
 if(params.n1_success_rate) %success rate will be computed as the portion of N-1 list that is recoverable, averaged over the 24-hours
     uc_sample.onoff = finalOnoff;
     uc_sample.Pg = finalPg;

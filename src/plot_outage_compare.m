@@ -93,7 +93,7 @@ for i_plan = 1:N_plans
         monthlyCost_DA(1,:,2)+monthlyCost(1,:,2)+(monthly_lost_load(1,:,2)++monthly_lost_load_DA(1,:,2))*params.VOLL,'r',opacity);
     hold on;
     plotFill(monthlyCost_DA(i_plan,:,1)+monthlyCost(i_plan,:,1)+(monthly_lost_load(i_plan,:,1)+monthly_lost_load_DA(i_plan,:,1))*params.VOLL,...
-       monthlyCost_DA(i_plan,:,2)+monthlyCost(i_plan,:,2)+(monthly_lost_load(i_plan,:,2)+monthly_lost_load_DA(i_plan,:,2))*params.VOLL,'b',opacity);
+        monthlyCost_DA(i_plan,:,2)+monthlyCost(i_plan,:,2)+(monthly_lost_load(i_plan,:,2)+monthly_lost_load_DA(i_plan,:,2))*params.VOLL,'b',opacity);
     hold off;
     %     legend({'No outages - std','No outages - mean','Outage plan 1 - std','Outage plan 1 - mean'});
     set(gca,'fontsize',fontSizeAxes );
@@ -101,6 +101,62 @@ for i_plan = 1:N_plans
     xlabel('Month', 'FontSize', fontSize)
     ylabel('Overall costs [$]', 'FontSize', fontSize)
 end
+
+%% plot best plan
+figure;
+%% monthly cost fill plots
+i_row=1;
+subplot(1,6,i_row);
+plotFill(monthlyCost(I(1),:,1),monthlyCost(I(1),:,2),'r',opacity);
+set(gca,'fontsize',fontSizeAxes );
+xlabel('Month', 'FontSize', fontSize)
+ylabel('Operational cost [$]', 'FontSize', fontSize)
+
+%% success rates
+i_row = 2;
+subplot(1,6,i_row);
+plotFill(monthly_success_rate_values(I(1),:,1),monthly_success_rate_values(I(1),:,2),'r',opacity);
+%     title('Monthly success rate comparison','FontSize', 17);
+xlabel('Month', 'FontSize', fontSize)
+ylabel('Sucess rate', 'FontSize', fontSize)
+
+%% lost load
+i_row = 3;
+subplot(1,6,i_row);
+
+plotFill(monthly_lost_load(I(1),:,1),monthly_lost_load(I(1),:,2),'r',opacity);
+
+set(gca,'fontsize',fontSizeAxes );
+%     title('Monthly lost load comparison','FontSize', 17);
+xlabel('Month', 'FontSize', fontSize)
+ylabel('Lost load', 'FontSize', fontSize)
+%% cost  - DA
+i_row = 4;
+subplot(1,6,i_row);
+plotFill(monthlyCost_DA(I(1),:,1),monthlyCost_DA(I(1),:,2),'r',opacity);
+
+set(gca,'fontsize',fontSizeAxes );
+%     title('Monthly lost load comparison','FontSize', 17);
+xlabel('Month', 'FontSize', fontSize)
+ylabel('DA Cost', 'FontSize', fontSize)
+%% lost load - DA
+i_row = 5;
+subplot(1,6,i_row);
+plotFill(monthly_lost_load_DA(I(1),:,1),monthly_lost_load_DA(I(1),:,2),'r',opacity);
+
+set(gca,'fontsize',fontSizeAxes );
+%     title('Monthly lost load comparison','FontSize', 17);
+xlabel('Month', 'FontSize', fontSize)
+ylabel('DA Lost load', 'FontSize', fontSize)
+%% overall costs - most important
+i_row = 6;
+subplot(1,6,i_row);
+plotFill(monthlyCost_DA(I(1),:,1)+monthlyCost(I(1),:,1)+(monthly_lost_load(I(1),:,1)+monthly_lost_load_DA(I(1),:,1))*params.VOLL,...
+    monthlyCost_DA(I(1),:,2)+monthlyCost(I(1),:,2)+(monthly_lost_load(I(1),:,2)++monthly_lost_load_DA(I(1),:,2))*params.VOLL,'r',opacity);
+set(gca,'fontsize',fontSizeAxes );
+%     title('Monthly lost load comparison','FontSize', 17);
+xlabel('Month', 'FontSize', fontSize)
+ylabel('Overall costs [$]', 'FontSize', fontSize)
 %% show comparison between no-outage to a single (or two) plans
 show = 1;
 if(show)

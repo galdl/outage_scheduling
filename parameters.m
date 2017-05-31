@@ -158,7 +158,7 @@ params.windBuses = caseParams.windBuses;
 params.windHourlyForcast = caseParams.windHourlyForcast;
 params.windCurtailmentPrice=100; %[$/MW]
 %% optimization parameters
-params.alpha = 0.3; %0.05 % success_rate chance-constraint parameter : P['bad event']<alpha
+params.alpha = 0.05; %0.05 % success_rate chance-constraint parameter : P['bad event']<alpha
 %% demand and wind STDs
 params.demandStd = 0.02;
 params.muStdRatio = 0.05;
