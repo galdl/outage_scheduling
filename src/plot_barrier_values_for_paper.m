@@ -1,14 +1,15 @@
 %% initialization
 close all;
 num_of_plots = 3;
-fontSize=15; %10
+fontSize=20; %10
 fontSizeAxes=15; %10
 opacity=0.12;
 values = zeros(num_of_plots,i_CE-1,3);
 %% value extraction
+best_percentile = 0.15;
 for j=1:i_CE-1
     stats=cell(6,1);
-    for i = 1:length(cell2mat(bestPlanVecTemp(4,:,j)))
+    for i = 1:round(length(cell2mat(bestPlanVecTemp(4,:,j)))*best_percentile)
         if(~isempty(bestPlanVecTemp{4,i,j}))
             c=c+1;
             stats{1}=[stats{1}, bestPlanVecTemp{4,i,j}];
@@ -28,7 +29,7 @@ for j=1:i_CE-1
 end
 %% plot graphs
 figure(9);
-titles={'Objective values','Oper. costs (RD,WC)','Success rate'};
+titles={'Objective values','Oper. costs (RD,WC)','Reliability'};
 %this is averaged over months (average planValues per month)
 for i_plot=1:num_of_plots
     subplot(1,3,i_plot);
@@ -36,7 +37,7 @@ for i_plot=1:num_of_plots
     set(gca,'fontsize',fontSizeAxes );
     xlabel('Iteration', 'FontSize', fontSize)
     title(titles{i_plot},'FontSize',fontSize);
-    if(i_plot ~= 2)
+    if(i_plot ~= 3)
         ylabel('USD $', 'FontSize', fontSize)
     end
 end
