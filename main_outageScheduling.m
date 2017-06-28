@@ -3,9 +3,9 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
-run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
-caseName = 'case96'; %case5,case9,case14,case24
+caseName = 'case24'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program
@@ -62,7 +62,7 @@ if(strcmp(run_mode,'optimize'))
     params_with_DA_scenarios = cell(params.numOfMonths,1);
     for i_month=1:params.numOfMonths
         params_with_DA_scenarios{i_month} = generate_shared_DA_scenarios(params,i_month);
-    end    
+    end
     %% optimization iterations - each w/ multiple solutions (m.plans)
     while(i_CE<=params.N_CE && ~convergenceObtained(p,epsilon))
         try
@@ -112,7 +112,7 @@ if(strcmp(run_mode,'optimize'))
             end
             deleteUnnecessaryTempFiles(config.local_tempFiles_dir);
             [planValues,success_rate_values,monthlyCost,contingenciesFrequency,planValuesVec,lostLoad,relative_nn_std_values,~,...
-              ~,~,~,relative_lostLoad_vector_means] = extractObjectiveValue(localIterDir,N_plans,params,config);
+                ~,~,~,relative_lostLoad_vector_means] = extractObjectiveValue(localIterDir,N_plans,params,config);
             %         S=planValues(~isnan(planValues));
             %% calibrate the barrier function according to planValues
             if(i_CE==1)
@@ -123,7 +123,7 @@ if(strcmp(run_mode,'optimize'))
             lostLoad_values = 1- lostLoad/max(lostLoad);
             success_rate_barrier_values = K*success_rate_barrier(success_rate_values,barrier_struct,params.alpha,i_CE);
             lostLoad_barrier_values = K*success_rate_barrier(lostLoad_values,barrier_struct,params.alpha,i_CE);
-
+            
             objective_values = planValues + success_rate_barrier_values + lostLoad_barrier_values;
             [S_sorted_includingNan,I] = sort(objective_values);
             S_sorted=S_sorted_includingNan(~isnan(S_sorted_includingNan));
@@ -189,24 +189,34 @@ if(strcmp(run_mode,'optimize'))
     save([dirs.full_localRun_dir,'/',config.SAVE_FILENAME]);
 else %compare
     %% generate solutions for assesment
-    generate_new_plans = 1;
-    if(generate_new_plans)
-        N_plans=100;
-        X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
-        mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
-        %mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
-% %DEBUG: (remove afterwards)
-%         for k=1:N_plans
-%             mPlanBatch(:,:,k) = zeros(size(mPlanBatch(:,:,1)));
-%         end
-        save('mPlanBatch96','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
+    assess_optimization=0;
+    if(assess_optimization)
+        mPlanBatch = zeros([size(bestPlanVecTemp{1,1,1}),N_plans]);
+        N_plans = i_CE-1;
+        for j=1:N_plans
+            mPlanBatch(:,:,j) = bestPlanVecTemp{1,1,j};
+        end
+        save('mPlanBatch96','mPlanBatch','N_plans');
     else
-        %% load mPlanBatch
-        %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare ...
-        %/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
-        %     new_plans = [2,3,4,6,7,9:19];
-        %     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
-        load('mPlanBatch96');
+        generate_new_plans = 0;
+        if(generate_new_plans)
+            N_plans=100;
+            X = generatePlans(reshape(p,planSize),N_plans,epsilon,params);
+            mPlanBatch=reshape(X,planSize(1),planSize(2),N_plans);
+            %mPlanBatch(:,:,1) = zeros(size(mPlanBatch(:,:,1)));
+            % %DEBUG: (remove afterwards)
+            %         for k=1:N_plans
+            %             mPlanBatch(:,:,k) = zeros(size(mPlanBatch(:,:,1)));
+            %         end
+            save('mPlanBatch96','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
+        else
+            %% load mPlanBatch
+            %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare ...
+            %/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
+            %     new_plans = [2,3,4,6,7,9:19];
+            %     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
+            load('mPlanBatch96');
+        end
     end
     %% send assessment jobs
     params_with_DA_scenarios = cell(params.numOfMonths,1);
