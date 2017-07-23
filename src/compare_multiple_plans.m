@@ -1,21 +1,22 @@
 %% load all data
-already_loaded = 1;
+already_loaded = 0;
+max_lost_load = sum(params.mpcase.bus(:,PD));
 if(~already_loaded)
     multiple_plans_file = '/Users/galdalal/Dropbox (MLGroup)/TeamViewer transfers/compare_100_rand_schedules';
     load(multiple_plans_file);
-    rand_vals = [planValues - lostLoad*params.VOLL,success_rate_values,lostLoad,lostLoad./success_rate_values];
+    rand_vals = [planValues - lostLoad*params.VOLL,100*success_rate_values,100*lostLoad/max_lost_load,lostLoad./success_rate_values];
     optimal_plan_file = '/Users/galdalal/Dropbox (MLGroup)/TeamViewer transfers/case_96_alpha_0.05.mat';
     load(optimal_plan_file);
     num_opt = 10;
     optimal_vals = [planValues(I(1:num_opt)) - lostLoad(I(1:num_opt))*params.VOLL,...
-        success_rate_values(I(1:num_opt)),lostLoad(I(1:num_opt)),lostLoad(I(1:num_opt))./success_rate_values(I(1:num_opt))];
-    optimal_val = [planValues(I(1)) - lostLoad(I(1))*params.VOLL,success_rate_values(I(1)),lostLoad(I(1))];
+        100*success_rate_values(I(1:num_opt)),100*lostLoad(I(1:num_opt))/max_lost_load,lostLoad(I(1:num_opt))./success_rate_values(I(1:num_opt))];
+    optimal_val = [planValues(I(1)) - lostLoad(I(1))*params.VOLL,100*success_rate_values(I(1))/max_lost_load,100*lostLoad(I(1))/max_lost_load];
     all_vals = [rand_vals;optimal_vals];
 end
 
 %% plot histograms - 100 random schedules vs. 10 instances of the best schedule
-titles = {'Operational Cost (RD,WC) [$]','Success Rate','Lost Load [MW]','Ratio'};
-fontSize=15;
+titles = {'Operational Cost [$]','Reliability [%]','Lost Load [%]','Ratio'};
+fontSize=20;
 % n_bins = length(all_vals);
 
 % figure;
@@ -53,7 +54,7 @@ for i_plot=1:3
     end
 end
 
-xlim([-15,2000]);
+xlim(100*[-15,2000]/max_lost_load);
 
 %% plot scatter - 100 random schedules vs. 10 instances of the best schedule
 figure;
@@ -61,8 +62,8 @@ scatter(rand_vals(:,2),rand_vals(:,3));
 hold on;
 scatter(optimal_vals(:,2),optimal_vals(:,3),'r');
 legend({'Random schedules','Optimization Solution'},'FontSize', fontSize);
-xlabel('Sucess Rate', 'FontSize', fontSize)
-ylabel('Load Shedding', 'FontSize', fontSize)
+xlabel('Reliability [%]', 'FontSize', fontSize)
+ylabel('Load Shedding [%]', 'FontSize', fontSize)
 set(gca,'fontsize',fontSize );
 % LL=zeros(i_CE-1,1);
 % SR=zeros(i_CE-1,1);

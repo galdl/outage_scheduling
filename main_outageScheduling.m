@@ -5,7 +5,7 @@ run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
 run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
-caseName = 'case24'; %case5,case9,case14,case24
+caseName = 'case96'; %case5,case9,case14,case24
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program

@@ -367,7 +367,9 @@ onoff=value(onoff);
 success = (~isempty(strfind(result.info,'Successfully solved')));
 windSpilled=value(sp);
 loadLost = value(ls);
-
+if(dynamicUC)
+    objective = objective - value(loadShedding_cost);
+end
 %% save warm_start values
 warm_start.ls = value(ls);
 warm_start.sp = value(sp);
