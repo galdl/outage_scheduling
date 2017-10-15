@@ -367,6 +367,9 @@ onoff=value(onoff);
 success = (~isempty(strfind(result.info,'Successfully solved')));
 windSpilled=value(sp);
 loadLost = value(ls);
+%The dynamic UC optimization obviously wishes to minimize LS. However, in
+%the current version (since July 2017), the LS is removed from the mid-term
+%optimization objective.
 if(dynamicUC)
     objective = objective - value(loadShedding_cost);
 end
