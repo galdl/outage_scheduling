@@ -4,5 +4,7 @@ function jobArgs = set_job_args(prefix_num,config)
 jobArgs.ncpus=1;
 jobArgs.memory=config.memory_used; %in GB
 jobArgs.queue='new_q'; %all_q,new_q
-jobArgs.jobNamePrefix=[config.JOB_NAME_PREFIX,num2str(prefix_num)];
+%currently switched off usage of prefix_num, due to too-long job names
+% jobArgs.jobNamePrefix=[config.JOB_NAME_PREFIX,num2str(prefix_num)];
+jobArgs.jobNamePrefix=config.JOB_NAME_PREFIX;
 jobArgs.userName='gald';
