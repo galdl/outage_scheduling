@@ -26,7 +26,7 @@ if(strcmp(config.program_name,'optimize'))
 else %compare mode
     params.dynamicSamplesPerDay=3; %5
 end
-params.N_plans=150; %75
+params.N_plans=125; %75,150
 params.numOfMonths=12; %when changing this, make sure generate_shared_DA_scenarios(params,i_month) is fixed to not rely on 8 months (hardcoded).
 params.myopicUCForecast=0;
 params.dropUpDownConstraints=0; %1

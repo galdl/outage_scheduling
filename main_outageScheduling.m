@@ -3,9 +3,9 @@ warning off
 set_global_constants()
 run('get_global_constants.m')
 program_name =  'outage_scheduling'; %'outage_scheduling','uc_nn'
-run_mode = 'optimize'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
+run_mode = 'compare'; %'optimize','compare' (also referred to as 'train' and 'evaluate' in the code)
 prefix_num = 1;
-caseName = 'case24'; %case5,case9,case14,case24
+caseName = 'case96'; %case5,case9,case14,case24,case96
 program_path = strsplit(mfilename('fullpath'),'/');
 program_matlab_name = program_path{end};
 %% Initialize program
@@ -213,12 +213,20 @@ else %compare
             %         end
             save('mPlanBatch96','mPlanBatch','N_plans'); %assuming root dir is an agreed upon, regular dir
         else
+            custom_plans = 1;
+            if(custom_plans)
+                N_plans = 2;
+                mPlanBatch = zeros([planSize(1),planSize(2),N_plans]); 
+                mPlanBatch(:,:,1) = cyclic_plan;
+                mPlanBatch(:,:,2) = demand_plan;
+            else
             %% load mPlanBatch
             %     load('/Users/galdalal/mount/PSCC16_continuation/current_version/output/Outage_scheduling/saved_runs/Compare ...
             %/compare_run_2016-08-12-18-59-54--1--case24/compare_saved_run','mPlanBatch');
             %     new_plans = [2,3,4,6,7,9:19];
             %     mPlanBatch(:,:,new_plans) = mPlanBatch_new(:,:,new_plans);
-            load('mPlanBatch96');
+                load('mPlanBatch96');
+            end
         end
     end
     %% send assessment jobs
